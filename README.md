@@ -308,9 +308,9 @@ For example, to deploy a cluster in two environments named Dev and Staging you w
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.41.0 |
-| <a name="provider_bcrypt"></a> [bcrypt](#provider\_bcrypt) | 0.1.2 |
-| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | 1.14.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.72 |
+| <a name="provider_bcrypt"></a> [bcrypt](#provider\_bcrypt) | >= 0.1.2 |
+| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | >= 1.14 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.3.2 |
 
 ## Modules
