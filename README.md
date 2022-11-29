@@ -73,30 +73,9 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
       -backend-config="${AWS_REGION}"
     ```
 
-1. Create a tfvars file in the clusters folder with the values for your EKS cluster
-
-    ```hcl
-    eks_admins_iam_role = "<EksAdminsRole>"
-    vpc_id              = "<VpcId>"
-    eks_public_subnet_ids = [
-      "<PublicSubnetIdAz1>",
-      "<PublicSubnetIdAz2>",
-      "<PublicSubnetIdAz3>",
-    ]
-    eks_private_subnet_ids = [
-      "<PrivateSubnetIdAz1>",
-      "<PrivateSubnetIdAz2>",
-      "<PrivateSubnetIdAz3>",
-    ]
-    team_name                 = "demo"
-    environment               = "dev"
-    eks_cluster_domain        = "<Domain>"
-    acm_certificate_domain    = "*.<Domain>"
-    workloads_org             = "aws-samples"
-    workloads_path            = "argocd"
-    workloads_repo_url        = "https://github.com/aws-samples/eks-blueprints-actions-workflow.git"
-    workloads_target_revision = "main"
-    ```
+1. Create a tfvars file in the clusters folder with the values for your EKS cluster.
+    > Use [clusters/demo-dev-01.tfvars](clusters/demo-dev-01.tfvars) as a reference
+    > Replace all values contained in the demo example with the required cluster configuration
 
 1. Run Terraform plan to verify the resources created by this execution
 
@@ -196,84 +175,21 @@ For example, to deploy a cluster in two environments named Dev and Staging you w
 - STAGING_AWS_ACCOUNT
 - STAGING_AWS_IAM_ROLE
 
-## Workflow Provisioning/Deprovisioning Steps
+## Workflow Deployment Steps
 
 1. Create a branch.
 1. If it doesn't exist already, Create a `.yml` file in the [.github/workflows](.github/workflows) folder containing the information required by the cluster you want to deploy:
-    > Replace all values contained between <> with the required cluster configuration
+    > Use [.github/workflows/terraform-deploy-eks-demo-01.yml](.github/workflows/terraform-deploy-eks-demo-01.yml) as a reference
+    > Replace all values contained in the demo example with the required cluster configuration
 
-    ```yaml
-    name: 'Terraform EKS <team_name> <deployment_id>'
-
-    on:
-      workflow_dispatch:
-      pull_request:
-          paths:
-          - "./"
-          - "./clusters/<team_name>-dev-<deployment_id>.tfvars"
-          - "./clusters/<team_name>-staging-<deployment_id>.tfvars"
-          - ".github/workflows/terraform-eks-reusable.yml"
-          - ".github/workflows/terraform-eks-<team_name>-<deployment_id>.yml"
-          - "!./README.md"
-          - "!./gitignore"
-      push:
-        branches:
-          - "main"
-        paths:
-          - "./"
-          - "./clusters/<team_name>-dev-<deployment_id>.tfvars"
-          - "./clusters/<team_name>-staging-<deployment_id>.tfvars"
-          - ".github/workflows/terraform-eks-reusable.yml"
-          - ".github/workflows/terraform-eks-<team_name>-<deployment_id>.yml"
-          - "!./README.md"
-          - "!./gitignore"
-
-    jobs:
-      dev:
-        name: "Dev"
-        uses: ./.github/workflows/terraform-eks-reusable.yml
-        with:
-          deploy: true # false = destroy the cluster
-          aws-region: "us-west-2"
-          s3-bucket-name: "<terraform_state_s3_bucket_name>"
-          team-name: "<team_name>"
-          environment: "<environment>"
-          deployment-id: "<deployment_id>"
-        secrets:
-          AWS_ACCOUNT: ${{ secrets.DEV_AWS_ACCOUNT }}
-          AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
-          WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}
-    ```
-
-1. If it doesn't exist already, create a tfvars file in the clusters folder with the values for your EKS cluster
-
-    ```hcl
-    eks_admins_iam_role = "<EksAdminsRole>"
-    vpc_id              = "<VpcId>"
-    eks_public_subnet_ids = [
-      "<PublicSubnetIdAz1>",
-      "<PublicSubnetIdAz2>",
-      "<PublicSubnetIdAz3>",
-    ]
-    eks_private_subnet_ids = [
-      "<PrivateSubnetIdAz1>",
-      "<PrivateSubnetIdAz2>",
-      "<PrivateSubnetIdAz3>",
-    ]
-    team_name                 = "demo"
-    environment               = "dev"
-    eks_cluster_domain        = "<Domain>"
-    acm_certificate_domain    = "*.<Domain>"
-    workloads_org             = "aws-samples"
-    workloads_path            = "argocd"
-    workloads_repo_url        = "https://github.com/aws-samples/eks-blueprints-actions-workflow.git"
-    workloads_target_revision = "main"
-    ```
+1. If it doesn't exist already, create the tfvars files in the clusters folder with the values for your EKS clusters.
+    > Use [clusters/demo-dev-01.tfvars](clusters/demo-dev-01.tfvars) as a reference
+    > Replace all values contained in the demo example with the required cluster configuration
 
 1. Commit your changes and publish your branch.
 1. Create a Pull Request. This will trigger the workflow and add a comment with the expected plan outcome to the PR. The Terraform Apply step will not be executed at this stage.
 1. Ask someone to review the PR and make the appropriate changes if necessary.
-1. Once the PR is approved and the code is merged to the main branch, the workflow will be triggered automatically and start the job corresponding to the value of the `deploy` input.
+1. Once the PR is approved and the code is merged to the main branch, the workflow will be triggered automatically and start the deploy job. The Terraform Apply step will only be executed if changes are required.
 
 ## Validation Steps
 
@@ -362,6 +278,19 @@ For example, to deploy a cluster in two environments named Dev and Staging you w
     > **Warning**
     > You might need to wait a few minutes, and then refresh your browser.
 
+## Workflow Destroy Steps
+
+1. Create a branch.
+1. Create a `.yml` file in the [.github/workflows](.github/workflows) folder containing the information required by the cluster you want to destroy:
+    > Use [.github/workflows/terraform-destroy-eks-demo-01.yml](.github/workflows/terraform-destroy-eks-demo-01.yml) as a reference
+    > Replace all values contained in the demo example with the required cluster configuration
+
+1. Commit your changes and publish your branch.
+1. Create a Pull Request. This will trigger the workflow and add a comment with the expected plan outcome to the PR. The Terraform Destroy step will not be executed at this stage.
+1. Ask someone to review the PR and make the appropriate changes if necessary.
+1. Once the PR is approved and the code is merged to the main branch, the workflow will have to be triggered manually to start the destroy job.
+
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -379,9 +308,9 @@ For example, to deploy a cluster in two environments named Dev and Staging you w
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.41.0 |
-| <a name="provider_bcrypt"></a> [bcrypt](#provider\_bcrypt) | 0.1.2 |
-| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | 1.14.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.72 |
+| <a name="provider_bcrypt"></a> [bcrypt](#provider\_bcrypt) | >= 0.1.2 |
+| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | >= 1.14 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.3.2 |
 
 ## Modules
