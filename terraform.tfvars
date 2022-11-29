@@ -1,0 +1,8 @@
+k8s_version                             = "1.23"
+vpc_cni_version                         = "v1.12.0-eksbuild.1"
+kube_proxy_version                      = "v1.23.13-eksbuild.2"
+cluster_proportional_autoscaler_version = "1.0.1"
+karpenter_version                       = "v0.18.1"
+argocd_version                          = "5.13.8"
+aws_load_balancer_controller_version    = "1.4.5"
+external_dns_version                    = "6.11.2"

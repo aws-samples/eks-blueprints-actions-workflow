@@ -1,0 +1,172 @@
+name: "Terraform CI"
+description: "Terraform CI Composite Action"
+inputs:
+  AWS_ACCOUNT:
+    required: true
+    description: "AWS Account ID"
+  AWS_IAM_ROLE:
+    required: true
+    description: "AWS GitHub Actions IAM Role"
+  WORKLOADS_PAT:
+    required: true
+    description: "GitHub Personal Access Token"
+  GITHUB_TOKEN:
+    required: true
+    description: "GitHub Repository Token"
+  deploy:
+    required: true
+    description: "Desired state for the deployment. true=deploy | false=destroy"
+  aws-region:
+    required: true
+    description: "AWS Region"
+  s3-bucket:
+    required: true
+    description: "Terraform State S3 Bucket"
+  team:
+    required: true
+    description: "Team Name"
+  environment:
+    required: true
+    description: "Environment Name"
+  deployment-id:
+    required: true
+    description: "Deployment ID"
+outputs:
+  plan-exitcode:
+    description: "Terraform Plan Exit code"
+    value: ${{ steps.plan.outputs.exitcode }}
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT }}:role/${{ inputs.AWS_IAM_ROLE }}
+        role-session-name: eksrolesession
+        aws-region: ${{ inputs.aws-region }}
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_hostname: ''
+    - name: Terraform Format and style
+      id: fmt
+      shell: bash
+      run: terraform fmt -check -diff -recursive
+      continue-on-error: true
+    - name: Terraform Init
+      id: init
+      shell: bash
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ inputs.s3-bucket }}" \
+          -backend-config="key=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}/tfstate" \
+          -backend-config="region=${{ inputs.aws-region }}"
+    - name: Terraform Validate
+      id: validate
+      shell: bash
+      run: terraform validate -no-color
+    - name: Setup Terraform Plan Command
+      id: plan_command
+      shell: bash
+      run: |
+        if ${{ inputs.deploy }}
+        then
+          echo "PLAN_COMMAND=terraform plan" >> $GITHUB_OUTPUT
+        else
+          echo "PLAN_COMMAND=terraform plan -destroy" >> $GITHUB_OUTPUT
+        fi
+    - name: Terraform Plan
+      id: plan
+      continue-on-error: true
+      shell: bash
+      run: |
+        ${{ steps.plan_command.outputs.PLAN_COMMAND }} \
+          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+          -var="region=${{ inputs.aws-region }}" \
+          -var="workloads_pat=${{ inputs.WORKLOADS_PAT }}" \
+          -detailed-exitcode \
+          -out=tfplan
+    - name: Terraform Plan Output
+      id: plan_output
+      shell: bash
+      run: |
+        terraform show \
+          -no-color tfplan \
+          >${GITHUB_WORKSPACE}/tfplan.out
+    - name: Terraform Plan Status
+      if: steps.plan.outputs.exitcode == 1
+      shell: bash
+      run: exit 1
+    - name: Comment Pull Request
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan_output.outputs.stdout }}"
+      with:
+        github-token: ${{ inputs.GITHUB_TOKEN }}
+        script: |
+          // 1. Retrieve existing bot comments for the PR
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          })
+          const botComment = comments.find(comment => {
+            return comment.user.type === 'Bot' && comment.body.includes('${{ github.workflow }} ${{ inputs.environment }}')
+          })
+
+          // 2. Prepare format of the comment
+          const run_url = process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID
+          const run_link = '<a href="' + run_url + '">Actions</a>.'
+          const fs = require('fs')
+          const plan_file = fs.readFileSync('tfplan.out', 'utf8')
+          const plan = plan_file.length > 65000 ? plan_file.toString().substring(0, 65000) + " ..." : plan_file
+          const truncated_message = plan_file.length > 65000 ? "Output is too long and was truncated. You can read full Plan in " + run_link + "<br /><br />" : ""
+
+          const output = `## ${{ github.workflow }} ${{ inputs.environment }}
+          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          <details><summary>Validation Output</summary>
+
+          \`\`\`\n
+          ${{ steps.validate.outputs.stdout }}
+          \`\`\`
+
+          </details>
+
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+          <details><summary>Show Plan</summary>
+
+          \`\`\`\n
+          ${plan}
+          \`\`\`
+
+          </details>
+          ${truncated_message}
+
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ github.workspace }}\`, Workflow: \`${{ github.workflow }} ${{ inputs.environment }}\`*`;
+
+          // 3. If we have a comment, update it, otherwise create a new one
+          if (botComment) {
+            github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: output
+            })
+          } else {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+          }
+    - name: Disable Terraform Wrapper
+      if: github.ref_name == 'main' && steps.plan.outputs.exitcode == 2
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_hostname: ''
+        terraform_wrapper: false

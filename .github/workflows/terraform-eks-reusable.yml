@@ -1,0 +1,154 @@
+name: 'Terraform EKS Deploy Reusable'
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+  pull-requests: write # This is required to add comments to Pull Requests
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCOUNT:
+        required: true
+      AWS_IAM_ROLE:
+        required: true
+      WORKLOADS_PAT:
+        required: true
+    inputs:
+      deploy:
+        required: true
+        type: boolean
+      aws-region:
+        required: true
+        type: string
+      s3-bucket:
+        required: true
+        type: string
+      team:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      deployment-id:
+        required: true
+        type: string
+      cluster-name:
+        required: true
+        type: string
+      load-test-file:
+        required: true
+        type: string
+      sample-app:
+        required: true
+        type: string
+
+concurrency:
+  group: "${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}"
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  terraform-eks-provisioning:
+    name: 'Terraform EKS Provisioning'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Terraform CI
+      id: terraform_ci
+      uses: ./.github/actions/terraform-ci
+      with:
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+          AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+          WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          deploy: ${{ inputs.deploy }}
+          aws-region: ${{ inputs.aws-region }}
+          s3-bucket: ${{ inputs.s3-bucket }}
+          team: ${{ inputs.team }}
+          environment: ${{ inputs.environment }}
+          deployment-id: ${{ inputs.deployment-id }}
+    - name: Terraform Apply
+      if: inputs.deploy && github.ref_name == 'main' && steps.terraform_ci.outputs.plan-exitcode == 2
+      run: terraform apply tfplan
+    - name: Writing kubeconfig for eks cluster
+      run: |
+        aws eks update-kubeconfig --name ${{ inputs.cluster-name }} --region ${{ inputs.aws-region }}
+    - name: Scale sample deployment
+      if: inputs.deploy
+      run: |
+        set -xe
+        kubectl -n argocd patch applications ${{ inputs.sample-app }} --type='json' -p='[{"op": "replace", "path": "/spec/syncPolicy/automated/selfHeal", "value": false}]'
+        kubectl -n ${{ inputs.sample-app }} scale deployment deployment-2048 --replicas=10
+        sleep 120
+        kubectl -n ${{ inputs.sample-app }} get pods -o wide
+        nodes=$(kubectl -n ${{ inputs.sample-app }} get pods -o wide | sed '1d' | awk '{print $7}' | sort | uniq | wc -l)
+        echo $nodes
+        nodes=$(kubectl -n ${{ inputs.sample-app }} get pods -o wide | sed '1d' | awk '{print $7}' | sort | uniq | wc -l)
+        if [ $nodes -ne 10 ]
+        then
+          exit 1
+        else
+          exit 0
+        fi
+    - name: Reset ArgoCD app setting
+      if: always()
+      run: |
+        kubectl -n argocd patch applications ${{ inputs.sample-app }} --type='json' -p='[{"op": "replace", "path": "/spec/syncPolicy/automated/selfHeal", "value": true}]'
+    - name: Run local k6 test
+      uses: grafana/k6-action@v0.2.0
+      with:
+        filename: ./tests/${{ inputs.load-test-file }}
+    - name: Terraform Destroy
+      if: inputs.deploy == false && github.ref_name == 'main' && steps.plan_destroy.outputs.exitcode == 2
+      run: |
+        terraform destroy \
+          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+          -var="region=${{ inputs.aws-region }}" \
+          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+          -target="module.eks_blueprints_kubernetes_addons.module.argocd" \
+          -target="aws_secretsmanager_secret.argocd" \
+          -target="bcrypt_hash.argo" \
+          -auto-approve
+
+        terraform destroy \
+          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+          -var="region=${{ inputs.aws-region }}" \
+          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+          -target="kubectl_manifest.karpenter_provisioner" \
+          -auto-approve
+
+        terraform destroy \
+          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+          -var="region=${{ inputs.aws-region }}" \
+          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+          -target="module.eks_blueprints_kubernetes_addons" \
+          -auto-approve
+
+        terraform destroy \
+          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+          -var="region=${{ inputs.aws-region }}" \
+          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+          -target="module.eks_blueprints" \
+          -auto-approve
+
+        terraform destroy \
+          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+          -var="region=${{ inputs.aws-region }}" \
+          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+          -target="aws_iam_role.karpenter" \
+          -auto-approve
+
+        terraform destroy \
+          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+          -var="region=${{ inputs.aws-region }}" \
+          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+          -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
+          -target="aws_ec2_tag.private_subnet_cluster_alb_tag" \
+          -target="aws_ec2_tag.public_subnet_cluster_alb_tag" \
+          -target="aws_ec2_tag.vpc_tag " \
+          -auto-approve
