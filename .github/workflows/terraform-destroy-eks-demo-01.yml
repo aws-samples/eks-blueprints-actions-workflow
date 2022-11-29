@@ -1,0 +1,36 @@
+name: 'Terraform Destroy EKS Demo 01'
+
+on:
+  workflow_dispatch:
+  pull_request:
+      paths:
+      - ".github/workflows/terraform-destroy-eks-demo-01.yml"
+
+jobs:
+  dev:
+    name: "Dev"
+    uses: ./.github/workflows/terraform-destroy-eks-reusable.yml
+    with:
+      aws-region: "us-west-2"
+      s3-bucket: "terraform-state-eks-demo-us-west-2"
+      team: "demo"
+      environment: "dev"
+      deployment-id: "01"
+    secrets:
+      AWS_ACCOUNT: ${{ secrets.DEV_AWS_ACCOUNT }}
+      AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
+      WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}
+  staging:
+    needs: [dev]
+    name: "Staging"
+    uses: ./.github/workflows/terraform-destroy-eks-reusable.yml
+    with:
+      aws-region: "us-west-2"
+      s3-bucket: "terraform-state-eks-demo-us-west-2"
+      team: "demo"
+      environment: "staging"
+      deployment-id: "01"
+    secrets:
+      AWS_ACCOUNT: ${{ secrets.STAGING_AWS_ACCOUNT }}
+      AWS_IAM_ROLE: ${{ secrets.STAGING_AWS_IAM_ROLE }}
+      WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}

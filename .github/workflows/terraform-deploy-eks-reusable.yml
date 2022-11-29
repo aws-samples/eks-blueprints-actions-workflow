@@ -1,4 +1,4 @@
-name: 'Terraform EKS Deploy Reusable'
+name: 'Terraform Deploy EKS Reusable'
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -15,9 +15,6 @@ on:
       WORKLOADS_PAT:
         required: true
     inputs:
-      deploy:
-        required: true
-        type: boolean
       aws-region:
         required: true
         type: string
@@ -66,7 +63,7 @@ jobs:
           AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
           WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          deploy: ${{ inputs.deploy }}
+          deploy: true
           aws-region: ${{ inputs.aws-region }}
           s3-bucket: ${{ inputs.s3-bucket }}
           team: ${{ inputs.team }}
@@ -75,7 +72,7 @@ jobs:
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'
-    if: inputs.deploy && github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
+    if: github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -85,7 +82,6 @@ jobs:
       run: |
         aws eks update-kubeconfig --name ${{ inputs.cluster-name }} --region ${{ inputs.aws-region }}
     - name: Scale sample deployment
-      if: inputs.deploy
       run: |
         set -xe
         kubectl -n argocd patch applications ${{ inputs.sample-app }} --type='json' -p='[{"op": "replace", "path": "/spec/syncPolicy/automated/selfHeal", "value": false}]'
@@ -109,58 +105,3 @@ jobs:
       uses: grafana/k6-action@v0.2.0
       with:
         filename: ./tests/${{ inputs.load-test-file }}
-  terraform-eks-destroy:
-    needs: [terraform-plan]
-    name: 'Terraform EKS Destroy'
-    if: inputs.deploy == false && github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-    - name: Terraform Destroy
-      run: |
-        terraform destroy \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="module.eks_blueprints_kubernetes_addons.module.argocd" \
-          -target="aws_secretsmanager_secret.argocd" \
-          -target="bcrypt_hash.argo" \
-          -auto-approve
-
-        terraform destroy \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="kubectl_manifest.karpenter_provisioner" \
-          -auto-approve
-
-        terraform destroy \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="module.eks_blueprints_kubernetes_addons" \
-          -auto-approve
-
-        terraform destroy \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="module.eks_blueprints" \
-          -auto-approve
-
-        terraform destroy \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="aws_iam_role.karpenter" \
-          -auto-approve
-
-        terraform destroy \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
-          -target="aws_ec2_tag.private_subnet_cluster_alb_tag" \
-          -target="aws_ec2_tag.public_subnet_cluster_alb_tag" \
-          -target="aws_ec2_tag.vpc_tag " \
-          -auto-approve
