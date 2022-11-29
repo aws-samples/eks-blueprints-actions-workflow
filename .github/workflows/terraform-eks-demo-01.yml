@@ -50,6 +50,7 @@ jobs:
       AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
       WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}
   staging:
+    needs: [dev]
     name: "Staging"
     uses: ./.github/workflows/terraform-eks-reusable.yml
     with:
