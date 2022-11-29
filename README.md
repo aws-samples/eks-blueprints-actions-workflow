@@ -73,30 +73,9 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
       -backend-config="${AWS_REGION}"
     ```
 
-1. Create a tfvars file in the clusters folder with the values for your EKS cluster
-
-    ```hcl
-    eks_admins_iam_role = "<EksAdminsRole>"
-    vpc_id              = "<VpcId>"
-    eks_public_subnet_ids = [
-      "<PublicSubnetIdAz1>",
-      "<PublicSubnetIdAz2>",
-      "<PublicSubnetIdAz3>",
-    ]
-    eks_private_subnet_ids = [
-      "<PrivateSubnetIdAz1>",
-      "<PrivateSubnetIdAz2>",
-      "<PrivateSubnetIdAz3>",
-    ]
-    team_name                 = "demo"
-    environment               = "dev"
-    eks_cluster_domain        = "<Domain>"
-    acm_certificate_domain    = "*.<Domain>"
-    workloads_org             = "aws-samples"
-    workloads_path            = "argocd"
-    workloads_repo_url        = "https://github.com/aws-samples/eks-blueprints-actions-workflow.git"
-    workloads_target_revision = "main"
-    ```
+1. Create a tfvars file in the clusters folder with the values for your EKS cluster.
+    > Use [clusters/demo-dev-01.tfvars](clusters/demo-dev-01.tfvars) as a reference
+    > Replace all values contained in the demo example with the required cluster configuration
 
 1. Run Terraform plan to verify the resources created by this execution
 
