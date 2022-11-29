@@ -1,4 +1,4 @@
-name: 'Terraform EKS Demo 01'
+name: 'Terraform Deploy EKS Demo 01'
 
 on:
   workflow_dispatch:
@@ -9,8 +9,8 @@ on:
       - "clusters/demo-dev-01.tfvars"
       - "clusters/demo-staging-01.tfvars"
       - ".github/workflows/actions/terraform-plan/action.yml"
-      - ".github/workflows/terraform-eks-reusable.yml"
-      - ".github/workflows/terraform-eks-demo-01.yml"
+      - ".github/workflows/terraform-deploy-eks-reusable.yml"
+      - ".github/workflows/terraform-deploy-eks-demo-01.yml"
       - "!CODEOWNERS"
       - "!LICENSE"
       - "!**.md"
@@ -24,8 +24,8 @@ on:
       - "clusters/demo-dev-01.tfvars"
       - "clusters/demo-staging-01.tfvars"
       - ".github/workflows/actions/terraform-plan/action.yml"
-      - ".github/workflows/terraform-eks-reusable.yml"
-      - ".github/workflows/terraform-eks-demo-01.yml"
+      - ".github/workflows/terraform-deploy-eks-reusable.yml"
+      - ".github/workflows/terraform-deploy-eks-demo-01.yml"
       - "!CODEOWNERS"
       - "!LICENSE"
       - "!**.md"
@@ -34,9 +34,8 @@ on:
 jobs:
   dev:
     name: "Dev"
-    uses: ./.github/workflows/terraform-eks-reusable.yml
+    uses: ./.github/workflows/terraform-deploy-eks-reusable.yml
     with:
-      deploy: true
       aws-region: "us-west-2"
       s3-bucket: "terraform-state-eks-demo-us-west-2"
       team: "demo"
@@ -52,9 +51,8 @@ jobs:
   staging:
     needs: [dev]
     name: "Staging"
-    uses: ./.github/workflows/terraform-eks-reusable.yml
+    uses: ./.github/workflows/terraform-deploy-eks-reusable.yml
     with:
-      deploy: true
       aws-region: "us-west-2"
       s3-bucket: "terraform-state-eks-demo-us-west-2"
       team: "demo"
