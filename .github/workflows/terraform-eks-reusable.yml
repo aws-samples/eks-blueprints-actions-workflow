@@ -75,7 +75,7 @@ jobs:
   terraform-eks-deploy:
     needs: [terraform_plan]
     name: 'Terraform EKS Deploy'
-    if: inputs.deploy && github.ref_name == 'main' && steps.needs.terraform_plan.outputs.exitcode == 2
+    if: inputs.deploy && github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -112,7 +112,7 @@ jobs:
   terraform-eks-destroy:
     needs: [terraform_plan]
     name: 'Terraform EKS Destroy'
-    if: inputs.deploy == false && github.ref_name == 'main' && steps.needs.terraform_plan.outputs.exitcode == 2
+    if: inputs.deploy == false && github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
