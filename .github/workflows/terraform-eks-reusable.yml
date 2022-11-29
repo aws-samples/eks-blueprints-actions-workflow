@@ -55,6 +55,7 @@ jobs:
   terraform-eks-provisioning:
     name: 'Terraform EKS Provisioning'
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
