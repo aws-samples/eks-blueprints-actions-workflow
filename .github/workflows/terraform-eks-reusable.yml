@@ -73,7 +73,7 @@ jobs:
           environment: ${{ inputs.environment }}
           deployment-id: ${{ inputs.deployment-id }}
   terraform-eks-deploy:
-    needs: [terraform_plan]
+    needs: [terraform-plan]
     name: 'Terraform EKS Deploy'
     if: inputs.deploy && github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
     runs-on: ubuntu-latest
@@ -110,7 +110,7 @@ jobs:
       with:
         filename: ./tests/${{ inputs.load-test-file }}
   terraform-eks-destroy:
-    needs: [terraform_plan]
+    needs: [terraform-plan]
     name: 'Terraform EKS Destroy'
     if: inputs.deploy == false && github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
     runs-on: ubuntu-latest
