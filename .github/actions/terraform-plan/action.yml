@@ -1,5 +1,5 @@
-name: "Terraform CI"
-description: "Terraform CI Composite Action"
+name: "Terraform Plan"
+description: "Terraform Plan Composite Action"
 inputs:
   AWS_ACCOUNT:
     required: true
@@ -32,7 +32,7 @@ inputs:
     required: true
     description: "Deployment ID"
 outputs:
-  plan-exitcode:
+  exitcode:
     description: "Terraform Plan Exit code"
     value: ${{ steps.plan.outputs.exitcode }}
 runs:
