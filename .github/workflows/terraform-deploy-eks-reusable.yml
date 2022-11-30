@@ -71,8 +71,8 @@ jobs:
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'
-    if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
-          ${{ inputs.deployment-id }} == ${{ github.head_ref }}
+    if: ${{ (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
+          ${{ inputs.deployment-id }} == ${{ github.head_ref }} }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
