@@ -65,23 +65,30 @@ runs:
       id: validate
       shell: bash
       run: terraform validate -no-color
-    - name: Setup Terraform Plan Command
-      id: plan_command
+    - name: Define Terraform Plan Arguments
+      id: plan_args
       shell: bash
       run: |
+        # If destroy workflow
         if ${{ inputs.deploy }}
         then
           echo "PLAN_COMMAND=terraform plan" >> $GITHUB_OUTPUT
         else
           echo "PLAN_COMMAND=terraform plan -destroy" >> $GITHUB_OUTPUT
         fi
+        # If Pull Request
+        if ${{ github.head_ref }}
+        then
+          echo "CLUSTER_VAR_FILE=pr-test.tfvars"  >> $GITHUB_OUTPUT
+        else
+          echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
     - name: Terraform Plan
       id: plan
       continue-on-error: true
       shell: bash
       run: |
-        ${{ steps.plan_command.outputs.PLAN_COMMAND }} \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+        ${{ steps.plan_args.outputs.PLAN_COMMAND }} \
+          -var-file="./clusters/${{ steps.plan_args.outputs.CLUSTER_VAR_FILE }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ inputs.WORKLOADS_PAT }}" \
           -detailed-exitcode \
