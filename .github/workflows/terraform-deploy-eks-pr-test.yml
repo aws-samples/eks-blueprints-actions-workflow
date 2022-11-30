@@ -1,0 +1,33 @@
+name: 'Terraform Deploy EKS Demo 01'
+
+on:
+  pull_request:
+      paths:
+      - "*.tf*"
+      - "**.yaml"
+      - "clusters/pr-test.tfvars"
+      - ".github/workflows/actions/terraform-plan/action.yml"
+      - ".github/workflows/terraform-deploy-eks-reusable.yml"
+      - ".github/workflows/terraform-deploy-pr-test.yml"
+      - "!CODEOWNERS"
+      - "!LICENSE"
+      - "!**.md"
+      - "!gitignore"
+
+jobs:
+  pr-test:
+    name: "PR Test"
+    uses: ./.github/workflows/terraform-deploy-eks-reusable.yml
+    with:
+      aws-region: "us-west-2"
+      s3-bucket: "terraform-state-eks-demo-us-west-2"
+      team: ""
+      environment: "pr-test"
+      deployment-id: ${{ github.ref }}
+      cluster-name: eks-demo-dev-01
+      load-test-file: load-test-01.js
+      sample-app: game-2048
+    secrets:
+      AWS_ACCOUNT: ${{ secrets.DEV_AWS_ACCOUNT }}
+      AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
+      WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}
