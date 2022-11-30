@@ -82,6 +82,7 @@ runs:
           echo "CLUSTER_VAR_FILE=pr-test.tfvars"  >> $GITHUB_OUTPUT
         else
           echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
+        fi
     - name: Terraform Plan
       id: plan
       continue-on-error: true
