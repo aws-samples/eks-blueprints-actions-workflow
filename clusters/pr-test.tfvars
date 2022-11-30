@@ -10,9 +10,6 @@ eks_private_subnet_ids = [
   "subnet-051cf8d7ea7f4a513",
   "subnet-08f2223dc60683710"
 ]
-team_name                 = "pr"
-environment               = "test"
-cluster_id                = ""
 region                    = "us-west-2"
 eks_cluster_domain        = "micbegin.people.aws.dev"
 acm_certificate_domain    = "*.micbegin.people.aws.dev"
