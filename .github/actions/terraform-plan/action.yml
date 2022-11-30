@@ -82,7 +82,9 @@ runs:
           echo "CLUSTER_VAR_FILE=pr-test.tfvars"  >> $GITHUB_OUTPUT
           echo "CLUSTER_TEAM=pr"  >> $GITHUB_OUTPUT
           echo "CLUSTER_ENV=test"  >> $GITHUB_OUTPUT
-          echo "CLUSTER_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')}"  >> $GITHUB_OUTPUT
+          DEPLOYMENT_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')
+          echo ${DEPLOYMENT_ID}
+          echo "CLUSTER_ID=${DEPLOYMENT_ID}"  >> $GITHUB_OUTPUT
         else
           echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
           echo "CLUSTER_TEAM=${{ inputs.team }}"  >> $GITHUB_OUTPUT
