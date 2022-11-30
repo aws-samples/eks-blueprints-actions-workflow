@@ -110,6 +110,11 @@ runs:
       if: steps.plan.outputs.exitcode == 1
       shell: bash
       run: exit 1
+    - name: Upload Plan to S3
+      shell: bash
+      run: |
+        aws s3 cp tfplan \
+          s3://${{ inputs.s3-bucket }}/${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfplan
     - name: Comment Pull Request
       uses: actions/github-script@v6
       if: github.event_name == 'pull_request'
