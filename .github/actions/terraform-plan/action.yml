@@ -70,14 +70,14 @@ runs:
       shell: bash
       run: |
         # If destroy workflow
-        if [[ -z ${{ inputs.deploy }} ]]
+        if ${{ inputs.deploy }}
         then
           echo "PLAN_COMMAND=terraform plan" >> $GITHUB_OUTPUT
         else
           echo "PLAN_COMMAND=terraform plan -destroy" >> $GITHUB_OUTPUT
         fi
         # If Pull Request
-        if [[ -z ${{ github.head_ref }} ]]
+        if [[ ${{ inputs.deployment-id }} == ${{ github.head_ref }} ]]
         then
           echo "CLUSTER_VAR_FILE=pr-test.tfvars"  >> $GITHUB_OUTPUT
         else
