@@ -56,7 +56,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Terraform Plan
-      id: terraform_plan
       uses: ./.github/actions/terraform-plan
       with:
           AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
@@ -72,7 +71,7 @@ jobs:
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'
-    if: (github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2) ||
+    if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
           ${{ inputs.deployment-id }} == ${{ github.head_ref }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
