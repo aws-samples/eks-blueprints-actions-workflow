@@ -52,6 +52,9 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
+    outputs:
+      exitcode: ${{ steps.plan.outputs.exitcode }}
+      cluster_id: ${{ steps.tf_args.outputs.CLUSTER_ID }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -68,6 +71,7 @@ jobs:
           team: ${{ inputs.team }}
           environment: ${{ inputs.environment }}
           deployment-id: ${{ inputs.deployment-id }}
+
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'
