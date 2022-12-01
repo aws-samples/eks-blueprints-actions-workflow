@@ -72,7 +72,7 @@ jobs:
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
         deployment-id: ${{ inputs.deployment-id }}
-    - name: Copy tfplan to cache
+    - name: Copy Terraform Plan to Cache
       uses: actions/cache@v3
       with:
         path: tfplan
@@ -85,17 +85,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-    - name: Retrieve tfplan from cache
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_hostname: ''
+        terraform_wrapper: false
+    - name: Retrieve Terraform Plan from Cache
       uses: actions/cache@v3
       with:
         path: tfplan
         key: tfplan
-    # - name: Download Plan from S3
-    #   run: |
-    #     aws s3api get-object \
-    #       --bucket ${{ inputs.s3-bucket }} \
-    #       --key ${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster-id }}/tfplan \
-    #       tfplan
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster

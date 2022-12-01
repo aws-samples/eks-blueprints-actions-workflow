@@ -113,11 +113,6 @@ runs:
       if: steps.plan.outputs.exitcode == 1
       shell: bash
       run: exit 1
-    # - name: Upload Plan to S3
-    #   shell: bash
-    #   run: |
-    #     aws s3 cp tfplan \
-    #       s3://${{ inputs.s3-bucket }}/${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfplan
     - name: Comment Pull Request
       uses: actions/github-script@v6
       if: github.event_name == 'pull_request'
@@ -185,9 +180,3 @@ runs:
               body: output
             })
           }
-    - name: Disable Terraform Wrapper
-      if: github.ref_name == 'main' && steps.plan.outputs.exitcode == 2
-      uses: hashicorp/setup-terraform@v2
-      with:
-        cli_config_credentials_hostname: ''
-        terraform_wrapper: false
