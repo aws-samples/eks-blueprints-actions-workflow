@@ -37,7 +37,7 @@ on:
         required: true
         type: string
       workloads-ref:
-        required: true
+        required: false
         type: string
         default: "main"
 
