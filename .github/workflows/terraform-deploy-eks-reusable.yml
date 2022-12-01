@@ -53,12 +53,13 @@ jobs:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     outputs:
-      exitcode: ${{ steps.plan.outputs.exitcode.value }}
-      cluster_id: ${{ steps.tf_args.outputs.CLUSTER_ID.value }}
+      exitcode: ${{ steps.plan.outputs.exitcode }}
+      cluster-id: ${{ steps.plan.outputs.cluster-id }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Terraform Plan
+      id: plan
       uses: ./.github/actions/terraform-plan
       with:
         AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
@@ -82,11 +83,11 @@ jobs:
     steps:
     - name: Download Plan from S3
       run: |
-        echo ${{ needs.terraform-plan.outputs.cluster_id }}
+        echo ${{ needs.terraform-plan.outputs.cluster-id }}
         echo ${{ needs.terraform-plan.outputs.exitcode }}
         aws s3api get-object \
           --bucket ${{ inputs.s3-bucket }} \
-          --key ${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster_id }}/tfplan \
+          --key ${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster-id }}/tfplan \
           tfplan
     - name: Terraform Apply
       run: terraform apply tfplan
