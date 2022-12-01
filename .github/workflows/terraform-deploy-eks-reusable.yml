@@ -30,9 +30,6 @@ on:
       deployment-id:
         required: true
         type: string
-      cluster-name:
-        required: true
-        type: string
       load-test-file:
         required: true
         type: string
@@ -52,35 +49,77 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
+    outputs:
+      exitcode: ${{ steps.plan.outputs.exitcode }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Terraform Init
+      id: init
+      uses: ./.github/actions/terraform-init
+      with:
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: true
+        aws-region: ${{ inputs.aws-region }}
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ inputs.deployment-id }}
+        terraform-wrapper: true
     - name: Terraform Plan
-      id: terraform_plan
+      id: plan
       uses: ./.github/actions/terraform-plan
       with:
-          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-          AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-          WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          deploy: true
-          aws-region: ${{ inputs.aws-region }}
-          s3-bucket: ${{ inputs.s3-bucket }}
-          team: ${{ inputs.team }}
-          environment: ${{ inputs.environment }}
-          deployment-id: ${{ inputs.deployment-id }}
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: true
+        aws-region: ${{ inputs.aws-region }}
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ steps.init.outputs.cluster-id }}
+        cluster-var-file: ${{ steps.init.outputs.cluster-var-file }}
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'
-    if: github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
+    if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
+          (inputs.deployment-id == github.head_ref && needs.terraform-plan.outputs.exitcode == 2)
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment:
+      name: ${{ inputs.environment }}
+      url: https://game-2048-${{ steps.cluster_info.outputs.name }}.micbegin.people.aws.dev/
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Terraform Init
+      id: init
+      uses: ./.github/actions/terraform-init
+      with:
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: true
+        aws-region: ${{ inputs.aws-region }}
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ inputs.deployment-id }}
+        terraform-wrapper: false
+    - name: Retrieve Terraform Plan from Cache
+      uses: actions/cache@v3
+      with:
+        path: tfplan
+        key: tfplan-${{ github.run_id }}
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
-      run: |
-        aws eks update-kubeconfig --name ${{ inputs.cluster-name }} --region ${{ inputs.aws-region }}
+      run: $(terraform output -raw configure_kubectl)
     - name: Scale sample deployment
       run: |
         set -xe
@@ -105,3 +144,8 @@ jobs:
       uses: grafana/k6-action@v0.2.0
       with:
         filename: ./tests/${{ inputs.load-test-file }}
+    - name: Get Cluster Info
+      id: cluster_info
+      run: |
+        CLUSTER_NAME=$(terraform output -raw cluster_name)
+        echo "name=${CLUSTER_NAME}"  >> $GITHUB_OUTPUT

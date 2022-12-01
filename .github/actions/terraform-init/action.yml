@@ -1,0 +1,78 @@
+name: "Terraform Init"
+description: "Terraform Init Composite Action"
+inputs:
+  AWS_ACCOUNT:
+    required: true
+    description: "AWS Account ID"
+  AWS_IAM_ROLE:
+    required: true
+    description: "AWS GitHub Actions IAM Role"
+  WORKLOADS_PAT:
+    required: true
+    description: "GitHub Personal Access Token"
+  GITHUB_TOKEN:
+    required: true
+    description: "GitHub Repository Token"
+  deploy:
+    required: true
+    description: "Desired state for the deployment. true=deploy | false=destroy"
+  aws-region:
+    required: true
+    description: "AWS Region"
+  s3-bucket:
+    required: true
+    description: "Terraform State S3 Bucket"
+  team:
+    required: true
+    description: "Team Name"
+  environment:
+    required: true
+    description: "Environment Name"
+  deployment-id:
+    required: true
+    description: "Deployment ID"
+  terraform-wrapper:
+    required: true
+    description: "Terraform Wrapper"
+outputs:
+  cluster-var-file:
+    description: "Cluster .tfvars file"
+    value: ${{ steps.tf_args.outputs.CLUSTER_VAR_FILE }}
+  cluster-id:
+    description: "EKS Cluster ID"
+    value: ${{ steps.tf_args.outputs.CLUSTER_ID }}
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT }}:role/${{ inputs.AWS_IAM_ROLE }}
+        role-session-name: eksrolesession
+        aws-region: ${{ inputs.aws-region }}
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_hostname: ''
+        terraform_wrapper: ${{ inputs.terraform-wrapper }}
+    - name: Define Terraform Arguments
+      id: tf_args
+      shell: bash
+      run: |
+        if [[ ${{ inputs.deployment-id }} == ${{ github.head_ref }} ]]
+        then
+          echo "CLUSTER_VAR_FILE=pr-testing.tfvars"  >> $GITHUB_OUTPUT
+          DEPLOYMENT_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')
+          echo "CLUSTER_ID=${DEPLOYMENT_ID}"  >> $GITHUB_OUTPUT
+        else
+          echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
+          echo "CLUSTER_ID=${{ inputs.deployment-id }}"  >> $GITHUB_OUTPUT
+        fi
+    - name: Terraform Init
+      id: init
+      shell: bash
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ inputs.s3-bucket }}" \
+          -backend-config="key=${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfstate" \
+          -backend-config="region=${{ inputs.aws-region }}"

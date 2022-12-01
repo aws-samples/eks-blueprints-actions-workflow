@@ -25,7 +25,7 @@ provider "kubectl" {
 }
 
 locals {
-  name   = "eks-${var.team_name}-${var.environment}-${var.cluster_id}"
+  name   = "eks-${var.team_name}-${var.environment}-${substr(var.cluster_id, 0, 10)}"
   region = var.region
 
   azs = slice(data.aws_availability_zones.available.names, 0, 3)

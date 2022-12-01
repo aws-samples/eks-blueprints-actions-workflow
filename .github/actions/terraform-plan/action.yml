@@ -31,6 +31,9 @@ inputs:
   deployment-id:
     required: true
     description: "Deployment ID"
+  cluster-var-file:
+    required: true
+    description: "Cluster .tfvars file"
 outputs:
   exitcode:
     description: "Terraform Plan Exit code"
@@ -38,35 +41,17 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT }}:role/${{ inputs.AWS_IAM_ROLE }}
-        role-session-name: eksrolesession
-        aws-region: ${{ inputs.aws-region }}
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        cli_config_credentials_hostname: ''
     - name: Terraform Format and style
       id: fmt
       shell: bash
       run: terraform fmt -check -diff -recursive
       continue-on-error: true
-    - name: Terraform Init
-      id: init
-      shell: bash
-      run: |
-        terraform init \
-          -backend-config="bucket=${{ inputs.s3-bucket }}" \
-          -backend-config="key=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}/tfstate" \
-          -backend-config="region=${{ inputs.aws-region }}"
     - name: Terraform Validate
       id: validate
       shell: bash
       run: terraform validate -no-color
-    - name: Setup Terraform Plan Command
-      id: plan_command
+    - name: Define Terraform Plan Command # Deploy or Destroy
+      id: tf_plan_command
       shell: bash
       run: |
         if ${{ inputs.deploy }}
@@ -75,13 +60,26 @@ runs:
         else
           echo "PLAN_COMMAND=terraform plan -destroy" >> $GITHUB_OUTPUT
         fi
+
+        if [[ ${{ inputs.deployment-id }} == ${{ github.head_ref }} ]]
+        then
+          echo "CLUSTER_VAR_FILE=pr-test.tfvars"  >> $GITHUB_OUTPUT
+          DEPLOYMENT_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')
+          echo "CLUSTER_ID=${DEPLOYMENT_ID}"  >> $GITHUB_OUTPUT
+        else
+          echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
+          echo "CLUSTER_ID=${{ inputs.deployment-id }}"  >> $GITHUB_OUTPUT
+        fi
     - name: Terraform Plan
       id: plan
       continue-on-error: true
       shell: bash
       run: |
-        ${{ steps.plan_command.outputs.PLAN_COMMAND }} \
-          -var-file="./clusters/${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars" \
+        ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
+          -var-file="./clusters/${{ inputs.cluster-var-file }}" \
+          -var="team_name=${{ inputs.team }}" \
+          -var="environment=${{ inputs.environment }}" \
+          -var="cluster_id=${{ inputs.deployment-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ inputs.WORKLOADS_PAT }}" \
           -detailed-exitcode \
@@ -164,9 +162,9 @@ runs:
               body: output
             })
           }
-    - name: Disable Terraform Wrapper
-      if: github.ref_name == 'main' && steps.plan.outputs.exitcode == 2
-      uses: hashicorp/setup-terraform@v2
+    - name: Copy Terraform Plan to Cache
+      uses: actions/cache@v3
+      if: inputs.deploy
       with:
-        cli_config_credentials_hostname: ''
-        terraform_wrapper: false
+        path: tfplan
+        key: tfplan-${{ github.run_id }}
