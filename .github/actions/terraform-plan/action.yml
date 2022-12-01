@@ -164,6 +164,7 @@ runs:
           }
     - name: Copy Terraform Plan to Cache
       uses: actions/cache@v3
+      if: inputs.deploy
       with:
         path: tfplan
         key: tfplan
