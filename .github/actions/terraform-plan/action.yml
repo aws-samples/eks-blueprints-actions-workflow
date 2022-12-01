@@ -111,7 +111,7 @@ runs:
           const plan = plan_file.length > 65000 ? plan_file.toString().substring(0, 65000) + " ..." : plan_file
           const truncated_message = plan_file.length > 65000 ? "Output is too long and was truncated. You can read full Plan in " + run_link + "<br /><br />" : ""
 
-          const output = `## ${{ github.workflow }} ${{ inputs.environment }}
+          const output = `## ${{ github.workflow }} - ${{ inputs.environment }} - Cluster eks-${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}
           #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
           #### Terraform Initialization ⚙️\`${{ inputs.init-outcome }}\`
           #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
