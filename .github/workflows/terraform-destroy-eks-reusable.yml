@@ -109,7 +109,7 @@ jobs:
           -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
           -var="team_name=${{ inputs.team }}" \
           -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ inputs.deployment-id }}" \
+          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
           -target="module.eks_blueprints_kubernetes_addons.module.argocd" \
@@ -121,7 +121,7 @@ jobs:
           -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
           -var="team_name=${{ inputs.team }}" \
           -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ inputs.deployment-id }}" \
+          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
           -target="kubectl_manifest.karpenter_provisioner" \
@@ -131,7 +131,7 @@ jobs:
           -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
           -var="team_name=${{ inputs.team }}" \
           -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ inputs.deployment-id }}" \
+          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
           -target="module.eks_blueprints_kubernetes_addons" \
@@ -141,7 +141,7 @@ jobs:
           -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
           -var="team_name=${{ inputs.team }}" \
           -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ inputs.deployment-id }}" \
+          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
           -target="module.eks_blueprints" \
@@ -151,7 +151,7 @@ jobs:
           -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
           -var="team_name=${{ inputs.team }}" \
           -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ inputs.deployment-id }}" \
+          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
           -target="aws_iam_role.karpenter" \
@@ -161,7 +161,7 @@ jobs:
           -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
           -var="team_name=${{ inputs.team }}" \
           -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ inputs.deployment-id }}" \
+          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
           -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
