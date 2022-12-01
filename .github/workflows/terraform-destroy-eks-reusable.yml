@@ -43,30 +43,71 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
+    outputs:
+      exitcode: ${{ steps.plan.outputs.exitcode }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Terraform Init
+      id: init
+      uses: ./.github/actions/terraform-init
+      with:
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: true
+        aws-region: ${{ inputs.aws-region }}
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ inputs.deployment-id }}
+        terraform-wrapper: true
     - name: Terraform Plan
-      id: terraform_plan
+      id: plan
       uses: ./.github/actions/terraform-plan
       with:
-          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-          AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-          WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          deploy: false
-          aws-region: ${{ inputs.aws-region }}
-          s3-bucket: ${{ inputs.s3-bucket }}
-          team: ${{ inputs.team }}
-          environment: ${{ inputs.environment }}
-          deployment-id: ${{ inputs.deployment-id }}
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: false
+        aws-region: ${{ inputs.aws-region }}
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ steps.init.outputs.cluster-id }}
+        cluster-var-file: ${{ steps.init.outputs.cluster-var-file }}
   terraform-eks-destroy:
     needs: [terraform-plan]
     name: 'Terraform EKS Destroy'
-    if: github.ref_name == 'main' && needs.terraform_plan.outputs.exitcode == 2
+    if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
+          (inputs.deployment-id == github.head_ref && needs.terraform-plan.outputs.exitcode == 2)
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Terraform Init
+      id: plan
+      uses: ./.github/actions/terraform-init
+      with:
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: true
+        aws-region: ${{ inputs.aws-region }}
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ steps.init.outputs.cluster-id }}
+        terraform-wrapper: false
+    - name: Retrieve Terraform Plan from Cache
+      uses: actions/cache@v3
+      with:
+        path: tfplan
+        key: tfplan
     - name: Terraform Destroy
       run: |
         terraform destroy \
