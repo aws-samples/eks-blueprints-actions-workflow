@@ -34,6 +34,10 @@ inputs:
   init-outcome:
     required: true
     description: "Terraform init command outcome"
+  workloads-ref:
+    required: true
+    default: "main"
+    description: "Argo CD Workloads Target Revision"
 outputs:
   exitcode:
     description: "Terraform Plan Exit code"
@@ -72,6 +76,7 @@ runs:
           -var="cluster_id=${{ inputs.deployment-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ inputs.WORKLOADS_PAT }}" \
+          -var="workloads_target_revision=${{ inputs.workloads-ref }}"
           -detailed-exitcode \
           -out=tfplan
     - name: Terraform Plan Output

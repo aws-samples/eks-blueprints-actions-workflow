@@ -111,4 +111,5 @@ variable "workloads_repo_url" {
 variable "workloads_target_revision" {
   type        = string
   description = "The Workloads Git Repository Target Revision (Tag or Branch)"
+  default     = "main"
 }
