@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       exitcode: ${{ steps.plan.outputs.exitcode }}
-      cluster-id: ${{ steps.plan.outputs.cluster-id }}
+      # cluster-id: ${{ steps.plan.outputs.cluster-id }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -72,23 +72,30 @@ jobs:
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
         deployment-id: ${{ inputs.deployment-id }}
-
+    - name: Copy tfplan to cache
+      uses: actions/cache@v3
+      with:
+        path: tfplan
+        key: tfplan
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'
     if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
-          inputs.deployment-id == github.head_ref
+          (inputs.deployment-id == github.head_ref && needs.terraform-plan.outputs.exitcode == 2)
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-    - name: Download Plan from S3
-      run: |
-        echo ${{ needs.terraform-plan.outputs.cluster-id }}
-        echo ${{ needs.terraform-plan.outputs.exitcode }}
-        aws s3api get-object \
-          --bucket ${{ inputs.s3-bucket }} \
-          --key ${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster-id }}/tfplan \
-          tfplan
+    - name: Retrieve tfplan from cache
+      uses: actions/cache@v3
+      with:
+        path: tfplan
+        key: tfplan
+    # - name: Download Plan from S3
+    #   run: |
+    #     aws s3api get-object \
+    #       --bucket ${{ inputs.s3-bucket }} \
+    #       --key ${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster-id }}/tfplan \
+    #       tfplan
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
