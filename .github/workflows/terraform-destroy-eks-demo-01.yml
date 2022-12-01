@@ -7,8 +7,8 @@ on:
       - ".github/workflows/terraform-destroy-eks-demo-01.yml"
 
 jobs:
-  dev:
-    name: "Dev"
+  destroy-dev:
+    name: "Destroy Dev"
     uses: ./.github/workflows/terraform-destroy-eks-reusable.yml
     with:
       aws-region: "us-west-2"
@@ -20,9 +20,9 @@ jobs:
       AWS_ACCOUNT: ${{ secrets.DEV_AWS_ACCOUNT }}
       AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
       WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}
-  staging:
-    needs: [dev]
-    name: "Staging"
+  destroy-staging:
+    needs: [destroy-dev]
+    name: "Destroy Staging"
     uses: ./.github/workflows/terraform-destroy-eks-reusable.yml
     with:
       aws-region: "us-west-2"
