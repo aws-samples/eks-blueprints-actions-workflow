@@ -107,7 +107,7 @@ jobs:
         s3-bucket: ${{ inputs.s3-bucket }}
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
-        deployment-id: ${{ steps.init.outputs.cluster-id }}
+        deployment-id: ${{ inputs.deployment-id }}
         terraform-wrapper: false
     - name: Retrieve Terraform Plan from Cache
       uses: actions/cache@v3

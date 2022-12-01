@@ -61,7 +61,7 @@ runs:
       run: |
         if [[ ${{ inputs.deployment-id }} == ${{ github.head_ref }} ]]
         then
-          echo "CLUSTER_VAR_FILE=pr-test.tfvars"  >> $GITHUB_OUTPUT
+          echo "CLUSTER_VAR_FILE=pr-testing.tfvars"  >> $GITHUB_OUTPUT
           DEPLOYMENT_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')
           echo "CLUSTER_ID=${DEPLOYMENT_ID}"  >> $GITHUB_OUTPUT
         else
