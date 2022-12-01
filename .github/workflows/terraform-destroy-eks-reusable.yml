@@ -54,8 +54,6 @@ jobs:
       with:
         AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
         AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         deploy: true
         aws-region: ${{ inputs.aws-region }}
         s3-bucket: ${{ inputs.s3-bucket }}
@@ -73,7 +71,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         deploy: false
         aws-region: ${{ inputs.aws-region }}
-        s3-bucket: ${{ inputs.s3-bucket }}
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
         deployment-id: ${{ steps.init.outputs.cluster-id }}
