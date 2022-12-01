@@ -19,9 +19,6 @@ inputs:
   aws-region:
     required: true
     description: "AWS Region"
-  s3-bucket:
-    required: true
-    description: "Terraform State S3 Bucket"
   team:
     required: true
     description: "Team Name"
@@ -59,6 +56,16 @@ runs:
           echo "PLAN_COMMAND=terraform plan" >> $GITHUB_OUTPUT
         else
           echo "PLAN_COMMAND=terraform plan -destroy" >> $GITHUB_OUTPUT
+        fi
+
+        if [[ ${{ inputs.deployment-id }} == ${{ github.head_ref }} ]]
+        then
+          echo "CLUSTER_VAR_FILE=pr-test.tfvars"  >> $GITHUB_OUTPUT
+          DEPLOYMENT_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')
+          echo "CLUSTER_ID=${DEPLOYMENT_ID}"  >> $GITHUB_OUTPUT
+        else
+          echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
+          echo "CLUSTER_ID=${{ inputs.deployment-id }}"  >> $GITHUB_OUTPUT
         fi
     - name: Terraform Plan
       id: plan

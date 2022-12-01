@@ -7,12 +7,6 @@ inputs:
   AWS_IAM_ROLE:
     required: true
     description: "AWS GitHub Actions IAM Role"
-  WORKLOADS_PAT:
-    required: true
-    description: "GitHub Personal Access Token"
-  GITHUB_TOKEN:
-    required: true
-    description: "GitHub Repository Token"
   deploy:
     required: true
     description: "Desired state for the deployment. true=deploy | false=destroy"
