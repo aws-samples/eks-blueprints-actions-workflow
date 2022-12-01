@@ -37,7 +37,7 @@ outputs:
     value: ${{ steps.plan.outputs.exitcode }}
   cluster_id:
     description: "EKS Cluster ID"
-    value: ${{ steps.tf_args.outputs.CLUSTER_ID }}
+    value: ${{ steps.tf_args.outputs.cluster_id }}
 runs:
   using: "composite"
   steps:
@@ -76,6 +76,8 @@ runs:
           echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
           echo "CLUSTER_ID=${{ inputs.deployment-id }}"  >> $GITHUB_OUTPUT
         fi
+
+        echo "::set-output name=cluster_id::${CLUSTER_ID}"
     - name: Terraform Init
       id: init
       shell: bash
