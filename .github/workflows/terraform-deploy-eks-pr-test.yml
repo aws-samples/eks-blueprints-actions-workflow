@@ -41,9 +41,6 @@ jobs:
       team: "temp"
       environment: "pr-test"
       deployment-id: ${{ github.head_ref }}
-      cluster-name: eks-demo-dev-01
-      load-test-file: load-test-01.js
-      sample-app: game-2048
     secrets:
       AWS_ACCOUNT: ${{ secrets.DEV_AWS_ACCOUNT }}
       AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
