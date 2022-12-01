@@ -78,9 +78,16 @@ jobs:
     steps:
     - name: Download Plan from S3
       run: |
+        if [[ ${{ inputs.deployment-id }} == ${{ github.head_ref }} ]]
+        then
+          CLUSTER_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')
+        else
+          CLUSTER_ID=${{ inputs.deployment-id }}
+        fi
+
         aws s3api get-object \
           --bucket ${{ inputs.s3-bucket }} \
-          --key ${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfplan \
+          --key ${{ inputs.team }}-${{ inputs.environment }}-${CLUSTER_ID}/tfplan \
           tfplan
     - name: Terraform Apply
       run: terraform apply tfplan
