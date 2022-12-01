@@ -6,6 +6,7 @@ on:
       - "*.tf*"
       - "**.yaml"
       - "clusters/pr-test.tfvars"
+      - ".github/workflows/actions/terraform-init/action.yml"
       - ".github/workflows/actions/terraform-plan/action.yml"
       - ".github/workflows/terraform-deploy-eks-reusable.yml"
       - ".github/workflows/terraform-deploy-pr-test.yml"
@@ -15,9 +16,25 @@ on:
       - "!gitignore"
 
 jobs:
-  pr-test:
-    name: "PR Test"
+  deploy-pr-test:
+    name: "Deploy PR Test Environment"
     uses: ./.github/workflows/terraform-deploy-eks-reusable.yml
+    with:
+      aws-region: "us-west-2"
+      s3-bucket: "terraform-state-eks-demo-us-west-2"
+      team: "temp"
+      environment: "pr-test"
+      deployment-id: ${{ github.head_ref }}
+      cluster-name: eks-demo-dev-01
+      load-test-file: load-test-01.js
+      sample-app: game-2048
+    secrets:
+      AWS_ACCOUNT: ${{ secrets.DEV_AWS_ACCOUNT }}
+      AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
+      WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}
+  destroy-pr-test:
+    name: "Destroy PR Test Environment"
+    uses: ./.github/workflows/terraform-destroy-eks-reusable.yml
     with:
       aws-region: "us-west-2"
       s3-bucket: "terraform-state-eks-demo-us-west-2"
