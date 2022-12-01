@@ -35,6 +35,9 @@ outputs:
   exitcode:
     description: "Terraform Plan Exit code"
     value: ${{ steps.plan.outputs.exitcode }}
+  cluster_id:
+    description: "EKS Cluster ID"
+    value: ${{ steps.tf_args.outputs.CLUSTER_ID }}
 runs:
   using: "composite"
   steps:
