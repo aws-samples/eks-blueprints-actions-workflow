@@ -120,26 +120,26 @@ jobs:
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
       run: $(terraform output -raw configure_kubectl)
-    - name: Scale sample deployment
-      run: |
-        set -xe
-        kubectl -n argocd patch applications ${{ inputs.sample-app }} --type='json' -p='[{"op": "replace", "path": "/spec/syncPolicy/automated/selfHeal", "value": false}]'
-        kubectl -n ${{ inputs.sample-app }} scale deployment deployment-2048 --replicas=10
-        sleep 120
-        kubectl -n ${{ inputs.sample-app }} get pods -o wide
-        nodes=$(kubectl -n ${{ inputs.sample-app }} get pods -o wide | sed '1d' | awk '{print $7}' | sort | uniq | wc -l)
-        echo $nodes
-        nodes=$(kubectl -n ${{ inputs.sample-app }} get pods -o wide | sed '1d' | awk '{print $7}' | sort | uniq | wc -l)
-        if [ $nodes -ne 10 ]
-        then
-          exit 1
-        else
-          exit 0
-        fi
-    - name: Reset ArgoCD app setting
-      if: always()
-      run: |
-        kubectl -n argocd patch applications ${{ inputs.sample-app }} --type='json' -p='[{"op": "replace", "path": "/spec/syncPolicy/automated/selfHeal", "value": true}]'
+    # - name: Scale sample deployment
+    #   run: |
+    #     set -xe
+    #     kubectl -n argocd patch applications ${{ inputs.sample-app }} --type='json' -p='[{"op": "replace", "path": "/spec/syncPolicy/automated/selfHeal", "value": false}]'
+    #     kubectl -n ${{ inputs.sample-app }} scale deployment deployment-2048 --replicas=10
+    #     sleep 120
+    #     kubectl -n ${{ inputs.sample-app }} get pods -o wide
+    #     nodes=$(kubectl -n ${{ inputs.sample-app }} get pods -o wide | sed '1d' | awk '{print $7}' | sort | uniq | wc -l)
+    #     echo $nodes
+    #     nodes=$(kubectl -n ${{ inputs.sample-app }} get pods -o wide | sed '1d' | awk '{print $7}' | sort | uniq | wc -l)
+    #     if [ $nodes -ne 10 ]
+    #     then
+    #       exit 1
+    #     else
+    #       exit 0
+    #     fi
+    # - name: Reset ArgoCD app setting
+    #   if: always()
+    #   run: |
+    #     kubectl -n argocd patch applications ${{ inputs.sample-app }} --type='json' -p='[{"op": "replace", "path": "/spec/syncPolicy/automated/selfHeal", "value": true}]'
     - name: Run local k6 test
       uses: grafana/k6-action@v0.2.0
       with:
