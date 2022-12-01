@@ -30,9 +30,6 @@ on:
       deployment-id:
         required: true
         type: string
-      cluster-name:
-        required: true
-        type: string
       load-test-file:
         required: true
         type: string
@@ -120,8 +117,7 @@ jobs:
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
-      run: |
-        aws eks update-kubeconfig --name ${{ inputs.cluster-name }} --region ${{ inputs.aws-region }}
+      run: $(terraform output -raw configure_kubectl)
     - name: Scale sample deployment
       run: |
         set -xe

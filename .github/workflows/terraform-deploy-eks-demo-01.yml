@@ -43,7 +43,6 @@ jobs:
       team: "demo"
       environment: "dev"
       deployment-id: "01"
-      cluster-name: eks-demo-dev-01
       load-test-file: load-test-01.js
       sample-app: game-2048
     secrets:
@@ -60,7 +59,6 @@ jobs:
       team: "demo"
       environment: "staging"
       deployment-id: "01"
-      cluster-name: eks-demo-staging-01
       load-test-file: load-test-01.js
       sample-app: game-2048
     secrets:
