@@ -87,11 +87,6 @@ jobs:
         environment: ${{ inputs.environment }}
         deployment-id: ${{ steps.init.outputs.cluster-id }}
         cluster-var-file: ${{ steps.init.outputs.cluster-var-file }}
-    - name: Copy Terraform Plan to Cache
-      uses: actions/cache@v3
-      with:
-        path: tfplan
-        key: tfplan
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'

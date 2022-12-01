@@ -162,3 +162,8 @@ runs:
               body: output
             })
           }
+    - name: Copy Terraform Plan to Cache
+      uses: actions/cache@v3
+      with:
+        path: tfplan
+        key: tfplan
