@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       exitcode: ${{ steps.plan.outputs.exitcode }}
-      # cluster-id: ${{ steps.plan.outputs.cluster-id }}
+      cluster-id: ${{ steps.plan.outputs.cluster-id }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -85,6 +85,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT }}:role/${{ inputs.AWS_IAM_ROLE }}
+        role-session-name: eksrolesession
+        aws-region: ${{ inputs.aws-region }}
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
@@ -95,6 +101,14 @@ jobs:
       with:
         path: tfplan
         key: tfplan
+    - name: Terraform Init
+      id: init
+      shell: bash
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ inputs.s3-bucket }}" \
+          -backend-config="key=${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster-id }}/tfstate" \
+          -backend-config="region=${{ inputs.aws-region }}"
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
