@@ -198,26 +198,26 @@ module "eks_blueprints_kubernetes_addons" {
     ]
   }
 
-  # argocd_applications = {
-  #   workloads = {
-  #     path            = var.workloads_path
-  #     repo_url        = var.workloads_repo_url
-  #     target_revision = var.workloads_target_revision
-  #     values = {
-  #       spec = {
-  #         source = {
-  #           repo_url       = var.workloads_repo_url
-  #           targetRevision = var.workloads_target_revision
-  #         }
-  #         clusterName = local.name
-  #         ingress = {
-  #           host = var.eks_cluster_domain
-  #         }
-  #       }
-  #     }
-  #     add_on_application = false
-  #   }
-  # }
+  argocd_applications = {
+    workloads = {
+      path            = var.workloads_path
+      repo_url        = var.workloads_repo_url
+      target_revision = var.workloads_target_revision
+      values = {
+        spec = {
+          source = {
+            repo_url       = var.workloads_repo_url
+            targetRevision = var.workloads_target_revision
+          }
+          clusterName = local.name
+          ingress = {
+            host = var.eks_cluster_domain
+          }
+        }
+      }
+      add_on_application = false
+    }
+  }
 
   enable_amazon_eks_vpc_cni = true
   amazon_eks_vpc_cni_config = {
