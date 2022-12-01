@@ -80,7 +80,8 @@ jobs:
       run: |
         aws s3api get-object \
           --bucket ${{ inputs.s3-bucket }} \
-          --key ${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfplan
+          --key ${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfplan \
+          tfplan
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
