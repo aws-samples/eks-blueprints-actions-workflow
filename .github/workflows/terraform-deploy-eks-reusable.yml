@@ -76,6 +76,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
+    - name: Download Plan from S3
+      run: |
+        aws s3api get-object \
+          --bucket ${{ inputs.s3-bucket }} \
+          --key ${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfplan
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
