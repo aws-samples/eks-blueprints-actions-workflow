@@ -154,4 +154,4 @@ runs:
       if: inputs.deploy
       with:
         path: tfplan
-        key: tfplan-${{ github.run_id }}
+        key: tfplan-${{ github.run_id }}-${{ github.run_attempt }}
