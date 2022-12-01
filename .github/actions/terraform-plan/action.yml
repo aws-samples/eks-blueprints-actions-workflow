@@ -167,4 +167,4 @@ runs:
       if: inputs.deploy
       with:
         path: tfplan
-        key: tfplan
+        key: tfplan-${{ github.run_id }}
