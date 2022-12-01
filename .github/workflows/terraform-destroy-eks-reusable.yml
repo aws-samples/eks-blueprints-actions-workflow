@@ -101,7 +101,7 @@ jobs:
         s3-bucket: ${{ inputs.s3-bucket }}
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
-        deployment-id: ${{ steps.init.outputs.cluster-id }}
+        deployment-id: ${{ inputs.deployment-id }}
         terraform-wrapper: false
     - name: Terraform Destroy
       run: |
