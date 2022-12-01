@@ -36,6 +36,10 @@ on:
       sample-app:
         required: true
         type: string
+      workloads-ref:
+        required: true
+        type: string
+        default: "main"
 
 concurrency:
   group: "${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}"
