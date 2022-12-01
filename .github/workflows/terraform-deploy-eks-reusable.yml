@@ -78,6 +78,8 @@ jobs:
     steps:
     - name: Download Plan from S3
       run: |
+        echo ${{ needs.terraform-plan.outputs.cluster_id }}
+        echo ${{ needs.terraform-plan.outputs.exitcode }}
         aws s3api get-object \
           --bucket ${{ inputs.s3-bucket }} \
           --key ${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster_id }}/tfplan \
