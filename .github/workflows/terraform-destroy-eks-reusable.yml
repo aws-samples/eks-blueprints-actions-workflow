@@ -117,15 +117,15 @@ jobs:
           -target="bcrypt_hash.argo" \
           -auto-approve
 
-        terraform destroy \
-          -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
-          -var="team_name=${{ inputs.team }}" \
-          -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="kubectl_manifest.karpenter_provisioner" \
-          -auto-approve
+        # terraform destroy \
+        #   -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
+        #   -var="team_name=${{ inputs.team }}" \
+        #   -var="environment=${{ inputs.environment }}" \
+        #   -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
+        #   -var="region=${{ inputs.aws-region }}" \
+        #   -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+        #   -target="kubectl_manifest.karpenter_provisioner" \
+        #   -auto-approve
 
         terraform destroy \
           -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
