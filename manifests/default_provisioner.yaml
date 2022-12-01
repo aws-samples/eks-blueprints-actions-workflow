@@ -23,5 +23,4 @@ spec:
     resources:
       cpu: 1000
       memory: 1000Gi
-  # ttlSecondsAfterEmpty: 30
   ttlSecondsUntilExpired: 86400 # 1 day = 86400 ; 30 days = 2592000
