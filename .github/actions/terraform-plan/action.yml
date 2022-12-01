@@ -47,11 +47,12 @@ runs:
   steps:
     - name: Terraform Format and style
       id: fmt
+      continue-on-error: true
       shell: bash
       run: terraform fmt -check -diff -recursive
-      continue-on-error: true
     - name: Terraform Validate
       id: validate
+      continue-on-error: true
       shell: bash
       run: terraform validate -no-color
     - name: Define Terraform Plan Command # Deploy or Destroy
@@ -86,10 +87,6 @@ runs:
         terraform show \
           -no-color tfplan \
           >${GITHUB_WORKSPACE}/tfplan.out
-    - name: Terraform Plan Status
-      if: steps.plan.outputs.exitcode == 1
-      shell: bash
-      run: exit 1
     - name: Comment Pull Request
       uses: actions/github-script@v6
       if: github.event_name == 'pull_request'
@@ -159,6 +156,12 @@ runs:
               body: output
             })
           }
+    - name: Terraform Plan Status
+      if: steps.plan.outputs.exitcode == 1 ||
+          steps.fmt.outputs.exitcode != 0 ||
+          steps.fmt.outputs.exitcode != 0
+      shell: bash
+      run: exit 1
     - name: Copy Terraform Plan to Cache
       uses: actions/cache@v3
       if: inputs.deploy
