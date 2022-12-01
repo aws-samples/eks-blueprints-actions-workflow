@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
-      url: https://game-2048-${{ steps.init.outputs.cluster-id }}.micbegin.people.aws.dev/
+      url: https://game-2048-${{ steps.cluster_info.outputs.name }}.micbegin.people.aws.dev/
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -144,3 +144,8 @@ jobs:
       uses: grafana/k6-action@v0.2.0
       with:
         filename: ./tests/${{ inputs.load-test-file }}
+    - name: Get Cluster Info
+      id: cluster_info
+      run: |
+        CLUSTER_NAME=$(terraform output -raw cluster_name)
+        echo "name=${CLUSTER_NAME}"  >> $GITHUB_OUTPUT
