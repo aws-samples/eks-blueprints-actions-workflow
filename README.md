@@ -4,19 +4,13 @@
 > You are responsible for the cost of the AWS services used while running this sample deployment. There is no additional cost for using this sample. For full details, see the pricing pages for each AWS service you will be using in this sample. Prices are subject to change.
 > This sample code should only be used for demonstration purposes and should not be used in a production environment.
 
-Karpenter is an open-source cluster autoscaler that automatically provisions new nodes in response to unschedulable pods. Karpenter evaluates the aggregate resource requirements of the pending pods and chooses the optimal instance type to run them. It will automatically scale-in or terminate instances that don’t have any non-daemonset pods to reduce waste. It also supports a consolidation feature which will actively move pods around and either delete or replace nodes with cheaper versions to reduce cluster cost.
+This example provides the following capabilities:
 
-Before the launch of Karpenter, Kubernetes users relied primarily on Amazon EC2 Auto Scaling groups and the Kubernetes Cluster Autoscaler (CAS) to dynamically adjust the compute capacity of their clusters. With Karpenter, you don’t need to create node groups to achieve the flexibility and diversity you get with Karpenter. Moreover, Karpenter is not as tightly coupled to Kubernetes versions (as CAS is) and doesn’t require you to jump between AWS and Kubernetes APIs.
+- Deploy EKS clusters with GitHub Action Workflows
+- Execute test suites on ephemeral test clusters
+- Leverage [Karpenter](karpenter.sh) for Autoscaling
 
-Karpenter consolidates instance orchestration responsibilities within a single system, which is simpler, more stable and cluster-aware. Karpenter was designed to overcome some of the challenges presented by Cluster Autoscaler by providing simplified ways to:
-
-- Provision nodes based on workload requirements.
-- Create diverse node configurations by instance type, using flexible workload provisioner options. Instead of managing many specific custom node groups, Karpenter could let you manage diverse workload capacity with a single, flexible provisioner.
-- Achieve improved pod scheduling at scale by quickly launching nodes and scheduling pods.
-
-For information and documentation on using Karpenter, visit the [karpenter.sh](karpenter.sh) site.
-
-This example shows how to deploy and leverage Karpenter for Autoscaling. The following resources will be deployed by this example.
+The following resources will be deployed by this example.
 
 - Creates EKS Cluster Control plane with one Fargate profile for the following namespaces:
   - kube-system
@@ -28,9 +22,6 @@ This example shows how to deploy and leverage Karpenter for Autoscaling. The fol
 - AWS Load Balancer Controller add-on deployed through a Helm chart
 - External DNS add-on deployed through a Helm chart
 - The [game-2048](helm/game-2048) application deployed through a Helm chart from this repository to demonstrates how Karpenter scales nodes based on workload requirements and how to configure the Ingress so that an application can be accessed over the internet.
-
-> **Warning**
-> The management of CoreDNS as demonstrated in this example is intended to be used on new clusters. Existing clusters with existing workloads will see downtime if the CoreDNS deployment is modified as shown here.
 
 ## How to Deploy Manually
 
@@ -175,6 +166,12 @@ For example, to deploy a cluster in two environments named Dev and Staging you w
 - STAGING_AWS_ACCOUNT
 - STAGING_AWS_IAM_ROLE
 
+Create the Environments you want to manage in your GtiHub repository. This example uses the following [GitHub Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment):
+
+- DEV
+- TEST
+- PR-TEST
+
 ## Workflow Deployment Steps
 
 1. Create a branch.
@@ -188,8 +185,10 @@ For example, to deploy a cluster in two environments named Dev and Staging you w
 
 1. Commit your changes and publish your branch.
 1. Create a Pull Request. This will trigger the workflow and add a comment with the expected plan outcome to the PR. The Terraform Apply step will not be executed at this stage.
+1. A workflow that triggers the deployment of an ephemeral cluster in the PR-TEST environment will be waiting for an approval. Add a required reviewer to approve workflow runs so you can decide when to deploy the ephemeral test cluster.
 1. Ask someone to review the PR and make the appropriate changes if necessary.
 1. Once the PR is approved and the code is merged to the main branch, the workflow will be triggered automatically and start the deploy job. The Terraform Apply step will only be executed if changes are required.
+1. When the PR is closed, a workflow to destroy the ephemeral test cluster in the PR-TEST environment. Approve the workflow run to destroy the EKS cluster.
 
 ## Validation Steps
 
