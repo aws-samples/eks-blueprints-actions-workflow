@@ -20,8 +20,8 @@ spec:
         ports:
         - containerPort: 80
       nodeSelector:
-        karpenter.sh/capacity-type: on-demand
-        karpenter.k8s.aws/instance-category: t
+        karpenter.sh/capacity-type: spot
+        kubernetes.io/arch: amd64
       topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: topology.kubernetes.io/zone

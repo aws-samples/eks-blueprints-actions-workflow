@@ -31,6 +31,13 @@ inputs:
   cluster-var-file:
     required: true
     description: "Cluster .tfvars file"
+  init-outcome:
+    required: true
+    description: "Terraform init command outcome"
+  workloads-ref:
+    required: true
+    default: "main"
+    description: "Argo CD Workloads Target Revision"
 outputs:
   exitcode:
     description: "Terraform Plan Exit code"
@@ -40,11 +47,12 @@ runs:
   steps:
     - name: Terraform Format and style
       id: fmt
+      continue-on-error: true
       shell: bash
       run: terraform fmt -check -diff -recursive
-      continue-on-error: true
     - name: Terraform Validate
       id: validate
+      continue-on-error: true
       shell: bash
       run: terraform validate -no-color
     - name: Define Terraform Plan Command # Deploy or Destroy
@@ -69,6 +77,7 @@ runs:
           -var="cluster_id=${{ inputs.deployment-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ inputs.WORKLOADS_PAT }}" \
+          -var="workloads_target_revision=${{ inputs.workloads-ref }}" \
           -detailed-exitcode \
           -out=tfplan
     - name: Terraform Plan Output
@@ -78,10 +87,6 @@ runs:
         terraform show \
           -no-color tfplan \
           >${GITHUB_WORKSPACE}/tfplan.out
-    - name: Terraform Plan Status
-      if: steps.plan.outputs.exitcode == 1
-      shell: bash
-      run: exit 1
     - name: Comment Pull Request
       uses: actions/github-script@v6
       if: github.event_name == 'pull_request'
@@ -108,9 +113,9 @@ runs:
           const plan = plan_file.length > 65000 ? plan_file.toString().substring(0, 65000) + " ..." : plan_file
           const truncated_message = plan_file.length > 65000 ? "Output is too long and was truncated. You can read full Plan in " + run_link + "<br /><br />" : ""
 
-          const output = `## ${{ github.workflow }} ${{ inputs.environment }}
+          const output = `## ${{ github.workflow }} - ${{ inputs.environment }} - Cluster eks-${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}
           #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Initialization ⚙️\`${{ inputs.init-outcome }}\`
           #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
           <details><summary>Validation Output</summary>
 
@@ -131,6 +136,8 @@ runs:
           </details>
           ${truncated_message}
 
+          #### Update kubeconfig command: \`aws eks --region ${{ inputs.aws-region }} update-kubeconfig --name eks-${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}\`
+
           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ github.workspace }}\`, Workflow: \`${{ github.workflow }} ${{ inputs.environment }}\`*`;
 
           // 3. If we have a comment, update it, otherwise create a new one
@@ -149,6 +156,12 @@ runs:
               body: output
             })
           }
+    - name: Terraform Plan Status
+      if: steps.plan.outputs.exitcode == 1 ||
+          steps.fmt.outputs.exitcode != 0 ||
+          steps.fmt.outputs.exitcode != 0
+      shell: bash
+      run: exit 1
     - name: Copy Terraform Plan to Cache
       uses: actions/cache@v3
       if: inputs.deploy

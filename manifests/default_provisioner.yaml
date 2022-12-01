@@ -3,6 +3,8 @@ kind: Provisioner
 metadata:
   name: default
 spec:
+  consolidation:
+    enabled: true
   provider:
     amiFamily: Bottlerocket
     instanceProfile: ${iam-instance-profile-id}
@@ -17,9 +19,13 @@ spec:
     - key: "karpenter.sh/capacity-type"
       operator: In
       values: ["spot", "on-demand"]
+    - key: kubernetes.io/arch
+      operator: In
+      values:
+      - amd64
+      - arm64
   limits:
     resources:
       cpu: 1000
       memory: 1000Gi
-  ttlSecondsAfterEmpty: 30
   ttlSecondsUntilExpired: 86400 # 1 day = 86400 ; 30 days = 2592000
