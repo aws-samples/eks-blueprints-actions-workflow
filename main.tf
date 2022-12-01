@@ -247,6 +247,8 @@ module "eks_blueprints_kubernetes_addons" {
     version = var.karpenter_version
   }
 
+  enable_kubecost = true
+
   enable_aws_load_balancer_controller = true
   aws_load_balancer_controller_helm_config = {
     version = var.aws_load_balancer_controller_version
