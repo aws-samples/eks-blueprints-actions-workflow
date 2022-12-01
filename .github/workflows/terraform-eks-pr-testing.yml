@@ -22,6 +22,7 @@ on:
 jobs:
   deploy-pr-test:
     name: "Deploy PR Test Environment"
+    if: github.event.action != 'closed'
     uses: ./.github/workflows/terraform-deploy-eks-reusable.yml
     with:
       aws-region: "us-west-2"
