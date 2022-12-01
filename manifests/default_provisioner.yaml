@@ -3,6 +3,8 @@ kind: Provisioner
 metadata:
   name: default
 spec:
+  consolidation:
+    enabled: true
   provider:
     amiFamily: Bottlerocket
     instanceProfile: ${iam-instance-profile-id}
