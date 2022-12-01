@@ -100,8 +100,6 @@ jobs:
       with:
         AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
         AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         deploy: true
         aws-region: ${{ inputs.aws-region }}
         s3-bucket: ${{ inputs.s3-bucket }}
@@ -113,7 +111,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: tfplan
-        key: tfplan-${{ github.run_id }}
+        key: tfplan-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster

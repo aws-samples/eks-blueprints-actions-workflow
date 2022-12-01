@@ -3,7 +3,7 @@ output "configure_kubectl" {
   value       = module.eks_blueprints.configure_kubectl
 }
 
-output "eks_cluster_name" {
+output "cluster_name" {
   description = "EKS Cluster Name"
   value       = local.name
 }
