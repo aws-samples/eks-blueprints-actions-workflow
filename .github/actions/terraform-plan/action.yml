@@ -77,7 +77,7 @@ runs:
           echo "CLUSTER_ID=${{ inputs.deployment-id }}"  >> $GITHUB_OUTPUT
         fi
 
-        echo "::set-output name=cluster_id::$(echo ${CLUSTER_ID})"
+        echo "::set-output name=cluster_id::$(echo $CLUSTER_ID)"
     - name: Terraform Init
       id: init
       shell: bash
