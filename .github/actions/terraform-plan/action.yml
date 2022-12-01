@@ -31,33 +31,27 @@ inputs:
   deployment-id:
     required: true
     description: "Deployment ID"
+  cluster-var-file:
+    required: true
+    description: "Cluster .tfvars file"
 outputs:
   exitcode:
     description: "Terraform Plan Exit code"
     value: ${{ steps.plan.outputs.exitcode }}
-  cluster-id:
-    description: "EKS Cluster ID"
-    value: ${{ steps.tf_args.outputs.CLUSTER_ID }}
 runs:
   using: "composite"
   steps:
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT }}:role/${{ inputs.AWS_IAM_ROLE }}
-        role-session-name: eksrolesession
-        aws-region: ${{ inputs.aws-region }}
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        cli_config_credentials_hostname: ''
     - name: Terraform Format and style
       id: fmt
       shell: bash
       run: terraform fmt -check -diff -recursive
       continue-on-error: true
-    - name: Define Terraform Arguments
-      id: tf_args
+    - name: Terraform Validate
+      id: validate
+      shell: bash
+      run: terraform validate -no-color
+    - name: Define Terraform Plan Command # Deploy or Destroy
+      id: tf_plan_command
       shell: bash
       run: |
         if ${{ inputs.deploy }}
@@ -76,28 +70,16 @@ runs:
           echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
           echo "CLUSTER_ID=${{ inputs.deployment-id }}"  >> $GITHUB_OUTPUT
         fi
-    - name: Terraform Init
-      id: init
-      shell: bash
-      run: |
-        terraform init \
-          -backend-config="bucket=${{ inputs.s3-bucket }}" \
-          -backend-config="key=${{ inputs.team }}-${{ inputs.environment }}-${{ steps.tf_args.outputs.CLUSTER_ID }}/tfstate" \
-          -backend-config="region=${{ inputs.aws-region }}"
-    - name: Terraform Validate
-      id: validate
-      shell: bash
-      run: terraform validate -no-color
     - name: Terraform Plan
       id: plan
       continue-on-error: true
       shell: bash
       run: |
-        ${{ steps.tf_args.outputs.PLAN_COMMAND }} \
-          -var-file="./clusters/${{ steps.tf_args.outputs.CLUSTER_VAR_FILE }}" \
+        ${{ steps.tf_plan_command.outputs.PLAN_COMMAND }} \
+          -var-file="./clusters/${{ inputs.cluster-var-file }}" \
           -var="team_name=${{ inputs.team }}" \
           -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.tf_args.outputs.CLUSTER_ID }}" \
+          -var="cluster_id=${{ inputs.deployment-id }}" \
           -var="region=${{ inputs.aws-region }}" \
           -var="workloads_pat=${{ inputs.WORKLOADS_PAT }}" \
           -detailed-exitcode \

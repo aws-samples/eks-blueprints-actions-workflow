@@ -54,10 +54,22 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       exitcode: ${{ steps.plan.outputs.exitcode }}
-      cluster-id: ${{ steps.plan.outputs.cluster-id }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    - name: Terraform Init
+      id: init
+      uses: ./.github/actions/terraform-init
+      with:
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: true
+        aws-region: ${{ inputs.aws-region }}
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ inputs.deployment-id }}
+        terraform-wrapper: true
     - name: Terraform Plan
       id: plan
       uses: ./.github/actions/terraform-plan
@@ -72,6 +84,7 @@ jobs:
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
         deployment-id: ${{ inputs.deployment-id }}
+        cluster-var-file: ${{ steps.init.outputs.cluster-id }}
     - name: Copy Terraform Plan to Cache
       uses: actions/cache@v3
       with:
@@ -85,32 +98,26 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+    - name: Terraform Init
+      id: plan
+      uses: ./.github/actions/terraform-init
       with:
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/${{ secrets.AWS_IAM_ROLE }}
-        role-session-name: eksrolesession
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        deploy: true
         aws-region: ${{ inputs.aws-region }}
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        cli_config_credentials_hostname: ''
-        terraform_wrapper: false
+        s3-bucket: ${{ inputs.s3-bucket }}
+        team: ${{ inputs.team }}
+        environment: ${{ inputs.environment }}
+        deployment-id: ${{ inputs.deployment-id }}
+        terraform-wrapper: false
     - name: Retrieve Terraform Plan from Cache
       uses: actions/cache@v3
       with:
         path: tfplan
         key: tfplan
-    - name: Terraform Init
-      id: init
-      shell: bash
-      run: |
-        terraform init \
-          -backend-config="bucket=${{ inputs.s3-bucket }}" \
-          -backend-config="key=${{ inputs.team }}-${{ inputs.environment }}-${{ needs.terraform-plan.outputs.cluster-id }}/tfstate" \
-          -backend-config="region=${{ inputs.aws-region }}"
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
