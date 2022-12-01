@@ -81,6 +81,7 @@ jobs:
         environment: ${{ inputs.environment }}
         deployment-id: ${{ steps.init.outputs.cluster-id }}
         cluster-var-file: ${{ steps.init.outputs.cluster-var-file }}
+        init-outcome: ${{ steps.init.outputs.outcome }}
   terraform-eks-deploy:
     needs: [terraform-plan]
     name: 'Terraform EKS Deploy'

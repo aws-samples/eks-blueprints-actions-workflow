@@ -35,6 +35,9 @@ outputs:
   cluster-id:
     description: "EKS Cluster ID"
     value: ${{ steps.tf_args.outputs.CLUSTER_ID }}
+  outcome:
+    description: "Terraform init command outcome"
+    value: ${{ steps.init.outcome }}
 runs:
   using: "composite"
   steps:

@@ -31,6 +31,9 @@ inputs:
   cluster-var-file:
     required: true
     description: "Cluster .tfvars file"
+  init-outcome:
+    required: true
+    description: "Terraform init command outcome"
 outputs:
   exitcode:
     description: "Terraform Plan Exit code"
@@ -110,7 +113,7 @@ runs:
 
           const output = `## ${{ github.workflow }} ${{ inputs.environment }}
           #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Initialization ⚙️\`${{ inputs.init-outcome }}\`
           #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
           <details><summary>Validation Output</summary>
 
