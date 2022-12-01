@@ -249,6 +249,9 @@ module "eks_blueprints_kubernetes_addons" {
 
   enable_metrics_server = true
   enable_kubecost       = true
+  kubecost_helm_config = {
+    wait = false
+  }
 
   enable_aws_load_balancer_controller = true
   aws_load_balancer_controller_helm_config = {
