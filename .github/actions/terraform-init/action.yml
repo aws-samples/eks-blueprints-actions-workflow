@@ -59,7 +59,7 @@ runs:
       id: tf_args
       shell: bash
       run: |
-        if [[ ${{ inputs.deployment-id }} == ${{ github.head_ref }} ]]
+        if [[ ${{ inputs.environment }} == "pr-test" ]]
         then
           echo "CLUSTER_VAR_FILE=pr-testing.tfvars"  >> $GITHUB_OUTPUT
           DEPLOYMENT_ID=$(echo ${{ inputs.deployment-id }} | sed 's@.*/@@')
