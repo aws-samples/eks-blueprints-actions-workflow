@@ -110,7 +110,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: tfplan
-        key: tfplan-${{ github.run_id }}-${{ github.run_attempt }}
+        key: tfplan-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
     - name: Terraform Apply
       run: terraform apply tfplan
     - name: Writing kubeconfig for eks cluster
