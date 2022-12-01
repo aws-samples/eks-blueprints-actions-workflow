@@ -34,8 +34,8 @@ on:
       - "!gitignore"
 
 jobs:
-  dev:
-    name: "Dev"
+  deploy-dev:
+    name: "Deploy Dev"
     uses: ./.github/workflows/terraform-deploy-eks-reusable.yml
     with:
       aws-region: "us-west-2"
@@ -49,9 +49,9 @@ jobs:
       AWS_ACCOUNT: ${{ secrets.DEV_AWS_ACCOUNT }}
       AWS_IAM_ROLE: ${{ secrets.DEV_AWS_IAM_ROLE }}
       WORKLOADS_PAT: ${{ secrets.DEMO_WORKLOADS_PAT }}
-  staging:
-    needs: [dev]
-    name: "Staging"
+  deploy-staging:
+    needs: [deploy-dev]
+    name: "Deploy Staging"
     uses: ./.github/workflows/terraform-deploy-eks-reusable.yml
     with:
       aws-region: "us-west-2"
