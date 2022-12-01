@@ -97,7 +97,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Terraform Init
-      id: plan
+      id: init
       uses: ./.github/actions/terraform-init
       with:
         AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
