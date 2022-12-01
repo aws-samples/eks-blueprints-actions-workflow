@@ -40,29 +40,29 @@ defaults:
     shell: bash
 
 jobs:
-  terraform-plan:
-    name: 'Terraform Plan'
-    runs-on: ubuntu-latest
-    outputs:
-      exitcode: ${{ steps.plan.outputs.exitcode }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Terraform Init
-      id: init
-      uses: ./.github/actions/terraform-init
-      with:
-        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        deploy: true
-        aws-region: ${{ inputs.aws-region }}
-        s3-bucket: ${{ inputs.s3-bucket }}
-        team: ${{ inputs.team }}
-        environment: ${{ inputs.environment }}
-        deployment-id: ${{ inputs.deployment-id }}
-        terraform-wrapper: true
+  # terraform-plan:
+  #   name: 'Terraform Plan'
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     exitcode: ${{ steps.plan.outputs.exitcode }}
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+  #   - name: Terraform Init
+  #     id: init
+  #     uses: ./.github/actions/terraform-init
+  #     with:
+  #       AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+  #       AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+  #       WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       deploy: true
+  #       aws-region: ${{ inputs.aws-region }}
+  #       s3-bucket: ${{ inputs.s3-bucket }}
+  #       team: ${{ inputs.team }}
+  #       environment: ${{ inputs.environment }}
+  #       deployment-id: ${{ inputs.deployment-id }}
+  #       terraform-wrapper: true
     # - name: Terraform Plan
     #   id: plan
     #   uses: ./.github/actions/terraform-plan
@@ -101,7 +101,7 @@ jobs:
         s3-bucket: ${{ inputs.s3-bucket }}
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
-        deployment-id: ${{ steps.init.outputs.cluster-id }}
+        deployment-id: ${{ inputs.deployment-id }}
         terraform-wrapper: false
     - name: Terraform Destroy
       run: |
