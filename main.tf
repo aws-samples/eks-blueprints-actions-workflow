@@ -206,7 +206,7 @@ module "eks_blueprints_kubernetes_addons" {
       values = {
         spec = {
           source = {
-            repo_url       = var.workloads_repo_url
+            repoURL       = var.workloads_repo_url
             targetRevision = var.workloads_target_revision
           }
           clusterName = local.name
