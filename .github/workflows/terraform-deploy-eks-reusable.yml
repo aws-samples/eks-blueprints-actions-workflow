@@ -85,7 +85,7 @@ jobs:
         s3-bucket: ${{ inputs.s3-bucket }}
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
-        deployment-id: ${{ inputs.deployment-id }}
+        deployment-id: ${{ steps.init.outputs.cluster-id }}
         cluster-var-file: ${{ steps.init.outputs.cluster-var-file }}
     - name: Copy Terraform Plan to Cache
       uses: actions/cache@v3
@@ -115,7 +115,7 @@ jobs:
         s3-bucket: ${{ inputs.s3-bucket }}
         team: ${{ inputs.team }}
         environment: ${{ inputs.environment }}
-        deployment-id: ${{ inputs.deployment-id }}
+        deployment-id: ${{ steps.init.outputs.cluster-id }}
         terraform-wrapper: false
     - name: Retrieve Terraform Plan from Cache
       uses: actions/cache@v3
