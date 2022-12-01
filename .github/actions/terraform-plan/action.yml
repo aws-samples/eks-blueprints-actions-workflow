@@ -134,6 +134,8 @@ runs:
           </details>
           ${truncated_message}
 
+          *Update kubeconfig command: \`aws eks --region ${{ inputs.aws-region }} update-kubeconfig --name eks-${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}\`
+
           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ github.workspace }}\`, Workflow: \`${{ github.workflow }} ${{ inputs.environment }}\`*`;
 
           // 3. If we have a comment, update it, otherwise create a new one
