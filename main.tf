@@ -310,10 +310,10 @@ resource "aws_iam_role_policy_attachment" "karpenter_instance_core" {
   policy_arn = data.aws_iam_policy.instance_core.arn
 }
 
-resource "aws_iam_instance_profile" "karpenter" {
-  name = "${local.name}-karpenter-instance-profile"
-  role = aws_iam_role.karpenter.name
-}
+# resource "aws_iam_instance_profile" "karpenter" {
+#   name = "${local.name}-karpenter-instance-profile"
+#   role = aws_iam_role.karpenter.name
+# }
 
 # Add the default provisioner for Karpenter autoscaler
 # data "kubectl_path_documents" "karpenter_provisioners" {
