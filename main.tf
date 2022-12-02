@@ -112,59 +112,59 @@ module "eks_blueprints" {
   # EKS FARGATE PROFILES
   # We recommend to have Fargate profiles to place your critical workloads and add-ons
   # Then rely on Karpenter to scale your workloads
-  fargate_profiles = {
-    # Providing compute for namespaces where core addons reside
-    core_addons = {
-      fargate_profile_name = "core-addons"
-      fargate_profile_namespaces = [
-        {
-          namespace = "kube-system"
-        },
-        {
-          namespace = "argocd"
-        },
-        {
-          namespace = "karpenter"
-        },
-        {
-          namespace = "external-dns"
-        }
-      ]
-      subnet_ids = var.eks_private_subnet_ids
-    }
-  }
+  # fargate_profiles = {
+  #   # Providing compute for namespaces where core addons reside
+  #   core_addons = {
+  #     fargate_profile_name = "core-addons"
+  #     fargate_profile_namespaces = [
+  #       {
+  #         namespace = "kube-system"
+  #       },
+  #       {
+  #         namespace = "argocd"
+  #       },
+  #       {
+  #         namespace = "karpenter"
+  #       },
+  #       {
+  #         namespace = "external-dns"
+  #       }
+  #     ]
+  #     subnet_ids = var.eks_private_subnet_ids
+  #   }
+  # }
 
   # Add karpenter.sh/discovery tag so that we can use this as securityGroupSelector in karpenter provisioner
-  node_security_group_tags = {
-    "karpenter.sh/discovery/${local.name}" = local.name
-  }
+  # node_security_group_tags = {
+  #   "karpenter.sh/discovery/${local.name}" = local.name
+  # }
 
   # Add Karpenter IAM role to the aws-auth config map to allow the controller to register the ndoes to the clsuter
-  map_roles = [
-    {
-      rolearn  = aws_iam_role.karpenter.arn
-      username = "system:node:{{EC2PrivateDNSName}}"
-      groups = [
-        "system:bootstrappers",
-        "system:nodes"
-      ]
-    },
-    {
-      rolearn  = data.aws_iam_role.eks_admins.arn
-      username = "eks-admins"
-      groups = [
-        "system:masters"
-      ]
-    },
-  ]
+  # map_roles = [
+  #   {
+  #     rolearn  = aws_iam_role.karpenter.arn
+  #     username = "system:node:{{EC2PrivateDNSName}}"
+  #     groups = [
+  #       "system:bootstrappers",
+  #       "system:nodes"
+  #     ]
+  #   },
+  #   {
+  #     rolearn  = data.aws_iam_role.eks_admins.arn
+  #     username = "eks-admins"
+  #     groups = [
+  #       "system:masters"
+  #     ]
+  #   },
+  # ]
 
-  platform_teams = {
-    eks-admins = {
-      users = [
-        data.aws_iam_role.eks_admins.arn
-      ]
-    }
-  }
+  # platform_teams = {
+  #   eks-admins = {
+  #     users = [
+  #       data.aws_iam_role.eks_admins.arn
+  #     ]
+  #   }
+  # }
 
   cluster_endpoint_private_access = true
 
