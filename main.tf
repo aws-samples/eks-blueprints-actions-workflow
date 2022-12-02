@@ -171,7 +171,7 @@ module "eks_blueprints" {
 }
 
 module "eks_blueprints_kubernetes_addons" {
-  depends_on = [module.eks_blueprints.fargate_profiles]
+  # depends_on = [module.eks_blueprints.fargate_profiles]
 
   source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.17.0"
 
