@@ -325,11 +325,11 @@ data "kubectl_path_documents" "karpenter_provisioners" {
   }
 }
 
-# resource "kubectl_manifest" "karpenter_provisioner" {
-#   depends_on = [module.eks_blueprints_kubernetes_addons]
-#   for_each   = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
-#   yaml_body  = each.value
-# }
+resource "kubectl_manifest" "karpenter_provisioner" {
+  depends_on = [module.eks_blueprints_kubernetes_addons]
+  for_each   = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
+  yaml_body  = each.value
+}
 
 resource "aws_ec2_tag" "vpc_tag" {
   resource_id = var.vpc_id
