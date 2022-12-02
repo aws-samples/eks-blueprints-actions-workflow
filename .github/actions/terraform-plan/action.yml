@@ -89,7 +89,7 @@ runs:
           >${GITHUB_WORKSPACE}/tfplan.out
     - name: Comment Pull Request
       uses: actions/github-script@v6
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && github.event.action != 'closed'
       env:
         PLAN: "terraform\n${{ steps.plan_output.outputs.stdout }}"
       with:
