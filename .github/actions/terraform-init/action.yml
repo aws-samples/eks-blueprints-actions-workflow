@@ -59,9 +59,8 @@ runs:
         if [[ ${{ inputs.environment }} == "pr-test" ]]
         then
           echo "CLUSTER_VAR_FILE=pr-testing.tfvars"  >> $GITHUB_OUTPUT
-          # DEPLOYMENT_ID=$(echo -n ${{ inputs.deployment-id }} | shasum -a 256 | cut -c1-4)
-          # echo "CLUSTER_ID=${DEPLOYMENT_ID}"  >> $GITHUB_OUTPUT
-          echo "CLUSTER_ID=1941"  >> $GITHUB_OUTPUT
+          DEPLOYMENT_ID=$(echo -n ${{ inputs.deployment-id }} | shasum -a 256 | cut -c1-4)
+          echo "CLUSTER_ID=${DEPLOYMENT_ID}"  >> $GITHUB_OUTPUT
         else
           echo "CLUSTER_VAR_FILE=${{ inputs.team }}-${{ inputs.environment }}-${{ inputs.deployment-id }}.tfvars"  >> $GITHUB_OUTPUT
           echo "CLUSTER_ID=${{ inputs.deployment-id }}"  >> $GITHUB_OUTPUT

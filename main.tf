@@ -112,163 +112,163 @@ module "eks_blueprints" {
   # EKS FARGATE PROFILES
   # We recommend to have Fargate profiles to place your critical workloads and add-ons
   # Then rely on Karpenter to scale your workloads
-  # fargate_profiles = {
-  #   # Providing compute for namespaces where core addons reside
-  #   core_addons = {
-  #     fargate_profile_name = "core-addons"
-  #     fargate_profile_namespaces = [
-  #       {
-  #         namespace = "kube-system"
-  #       },
-  #       {
-  #         namespace = "argocd"
-  #       },
-  #       {
-  #         namespace = "karpenter"
-  #       },
-  #       {
-  #         namespace = "external-dns"
-  #       }
-  #     ]
-  #     subnet_ids = var.eks_private_subnet_ids
-  #   }
-  # }
+  fargate_profiles = {
+    # Providing compute for namespaces where core addons reside
+    core_addons = {
+      fargate_profile_name = "core-addons"
+      fargate_profile_namespaces = [
+        {
+          namespace = "kube-system"
+        },
+        {
+          namespace = "argocd"
+        },
+        {
+          namespace = "karpenter"
+        },
+        {
+          namespace = "external-dns"
+        }
+      ]
+      subnet_ids = var.eks_private_subnet_ids
+    }
+  }
 
   # Add karpenter.sh/discovery tag so that we can use this as securityGroupSelector in karpenter provisioner
-  # node_security_group_tags = {
-  #   "karpenter.sh/discovery/${local.name}" = local.name
-  # }
+  node_security_group_tags = {
+    "karpenter.sh/discovery/${local.name}" = local.name
+  }
 
   # Add Karpenter IAM role to the aws-auth config map to allow the controller to register the ndoes to the clsuter
-  # map_roles = [
-  #   {
-  #     rolearn  = aws_iam_role.karpenter.arn
-  #     username = "system:node:{{EC2PrivateDNSName}}"
-  #     groups = [
-  #       "system:bootstrappers",
-  #       "system:nodes"
-  #     ]
-  #   },
-  #   {
-  #     rolearn  = data.aws_iam_role.eks_admins.arn
-  #     username = "eks-admins"
-  #     groups = [
-  #       "system:masters"
-  #     ]
-  #   },
-  # ]
+  map_roles = [
+    {
+      rolearn  = aws_iam_role.karpenter.arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups = [
+        "system:bootstrappers",
+        "system:nodes"
+      ]
+    },
+    {
+      rolearn  = data.aws_iam_role.eks_admins.arn
+      username = "eks-admins"
+      groups = [
+        "system:masters"
+      ]
+    },
+  ]
 
-  # platform_teams = {
-  #   eks-admins = {
-  #     users = [
-  #       data.aws_iam_role.eks_admins.arn
-  #     ]
-  #   }
-  # }
+  platform_teams = {
+    eks-admins = {
+      users = [
+        data.aws_iam_role.eks_admins.arn
+      ]
+    }
+  }
 
   cluster_endpoint_private_access = true
 
 }
 
-# module "eks_blueprints_kubernetes_addons" {
-#   depends_on = [module.eks_blueprints.fargate_profiles]
+module "eks_blueprints_kubernetes_addons" {
+  depends_on = [module.eks_blueprints.fargate_profiles]
 
-#   source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.17.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.17.0"
 
-#   eks_cluster_id       = module.eks_blueprints.eks_cluster_id
-#   eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
-#   eks_oidc_provider    = module.eks_blueprints.oidc_provider
-#   eks_cluster_version  = module.eks_blueprints.eks_cluster_version
-#   eks_cluster_domain   = var.eks_cluster_domain
+  eks_cluster_id       = module.eks_blueprints.eks_cluster_id
+  eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
+  eks_oidc_provider    = module.eks_blueprints.oidc_provider
+  eks_cluster_version  = module.eks_blueprints.eks_cluster_version
+  eks_cluster_domain   = var.eks_cluster_domain
 
-#   enable_argocd = true
-#   # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
-#   argocd_helm_config = {
-#     version = var.argocd_version
-#     values = [templatefile("${path.module}/argocd-values.yaml", {
-#       workloads_org      = var.workloads_org
-#       workloads_pat      = var.workloads_pat
-#       workloads_repo_url = var.workloads_repo_url
-#     })]
-#     set_sensitive = [
-#       {
-#         name  = "configs.secret.argocdServerAdminPassword"
-#         value = bcrypt_hash.argo.id
-#       }
-#     ]
-#   }
+  enable_argocd = true
+  # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
+  argocd_helm_config = {
+    version = var.argocd_version
+    values = [templatefile("${path.module}/argocd-values.yaml", {
+      workloads_org      = var.workloads_org
+      workloads_pat      = var.workloads_pat
+      workloads_repo_url = var.workloads_repo_url
+    })]
+    set_sensitive = [
+      {
+        name  = "configs.secret.argocdServerAdminPassword"
+        value = bcrypt_hash.argo.id
+      }
+    ]
+  }
 
-#   argocd_applications = {
-#     workloads = {
-#       path            = var.workloads_path
-#       repo_url        = var.workloads_repo_url
-#       target_revision = var.workloads_target_revision
-#       values = {
-#         spec = {
-#           source = {
-#             repoURL        = var.workloads_repo_url
-#             targetRevision = var.workloads_target_revision
-#           }
-#           clusterName = local.name
-#           ingress = {
-#             host = var.eks_cluster_domain
-#           }
-#         }
-#       }
-#       add_on_application = false
-#     }
-#   }
+  argocd_applications = {
+    workloads = {
+      path            = var.workloads_path
+      repo_url        = var.workloads_repo_url
+      target_revision = var.workloads_target_revision
+      values = {
+        spec = {
+          source = {
+            repoURL        = var.workloads_repo_url
+            targetRevision = var.workloads_target_revision
+          }
+          clusterName = local.name
+          ingress = {
+            host = var.eks_cluster_domain
+          }
+        }
+      }
+      add_on_application = false
+    }
+  }
 
-#   enable_amazon_eks_vpc_cni = true
-#   amazon_eks_vpc_cni_config = {
-#     addon_version = var.vpc_cni_version
-#   }
+  enable_amazon_eks_vpc_cni = true
+  amazon_eks_vpc_cni_config = {
+    addon_version = var.vpc_cni_version
+  }
 
-#   enable_amazon_eks_kube_proxy = true
-#   amazon_eks_kube_proxy_config = {
-#     addon_version = var.kube_proxy_version
-#   }
+  enable_amazon_eks_kube_proxy = true
+  amazon_eks_kube_proxy_config = {
+    addon_version = var.kube_proxy_version
+  }
 
-#   remove_default_coredns_deployment = true
-#   enable_self_managed_coredns       = true
-#   self_managed_coredns_helm_config = {
-#     # Sets the correct annotations to ensure the Fargate provisioner is used and not the EC2 provisioner
-#     compute_type       = "fargate"
-#     kubernetes_version = module.eks_blueprints.eks_cluster_version
-#   }
+  remove_default_coredns_deployment = true
+  enable_self_managed_coredns       = true
+  self_managed_coredns_helm_config = {
+    # Sets the correct annotations to ensure the Fargate provisioner is used and not the EC2 provisioner
+    compute_type       = "fargate"
+    kubernetes_version = module.eks_blueprints.eks_cluster_version
+  }
 
-#   enable_coredns_cluster_proportional_autoscaler = true
-#   coredns_cluster_proportional_autoscaler_helm_config = {
-#     version = var.cluster_proportional_autoscaler_version
-#   }
+  enable_coredns_cluster_proportional_autoscaler = true
+  coredns_cluster_proportional_autoscaler_helm_config = {
+    version = var.cluster_proportional_autoscaler_version
+  }
 
-#   enable_karpenter = true
-#   karpenter_helm_config = {
-#     version = var.karpenter_version
-#   }
+  enable_karpenter = true
+  karpenter_helm_config = {
+    version = var.karpenter_version
+  }
 
-#   enable_aws_load_balancer_controller = true
-#   aws_load_balancer_controller_helm_config = {
-#     version = var.aws_load_balancer_controller_version
-#     set_values = [
-#       {
-#         name  = "vpcId"
-#         value = var.vpc_id
-#       },
-#       {
-#         name  = "podDisruptionBudget.maxUnavailable"
-#         value = 1
-#       }
-#     ]
-#   }
+  enable_aws_load_balancer_controller = true
+  aws_load_balancer_controller_helm_config = {
+    version = var.aws_load_balancer_controller_version
+    set_values = [
+      {
+        name  = "vpcId"
+        value = var.vpc_id
+      },
+      {
+        name  = "podDisruptionBudget.maxUnavailable"
+        value = 1
+      }
+    ]
+  }
 
-#   enable_external_dns = true
-#   external_dns_helm_config = {
-#     version = var.external_dns_version
-#   }
+  enable_external_dns = true
+  external_dns_helm_config = {
+    version = var.external_dns_version
+  }
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}
 
 # Add the Karpenter Provisioners IAM Role
 # https://karpenter.sh/v0.19.0/getting-started/getting-started-with-terraform/#create-the-karpentercontroller-iam-role
@@ -310,26 +310,26 @@ resource "aws_iam_role_policy_attachment" "karpenter_instance_core" {
   policy_arn = data.aws_iam_policy.instance_core.arn
 }
 
-# resource "aws_iam_instance_profile" "karpenter" {
-#   name = "${local.name}-karpenter-instance-profile"
-#   role = aws_iam_role.karpenter.name
-# }
+resource "aws_iam_instance_profile" "karpenter" {
+  name = "${local.name}-karpenter-instance-profile"
+  role = aws_iam_role.karpenter.name
+}
 
 # Add the default provisioner for Karpenter autoscaler
-# data "kubectl_path_documents" "karpenter_provisioners" {
-#   pattern = "${path.module}/manifests/default_provisioner*.yaml"
-#   vars = {
-#     azs                     = join(",", local.azs)
-#     iam-instance-profile-id = "${local.name}-karpenter-instance-profile"
-#     eks-cluster-id          = local.name
-#   }
-# }
+data "kubectl_path_documents" "karpenter_provisioners" {
+  pattern = "${path.module}/manifests/default_provisioner*.yaml"
+  vars = {
+    azs                     = join(",", local.azs)
+    iam-instance-profile-id = "${local.name}-karpenter-instance-profile"
+    eks-cluster-id          = local.name
+  }
+}
 
-# resource "kubectl_manifest" "karpenter_provisioner" {
-#   # depends_on = [module.eks_blueprints_kubernetes_addons]
-#   for_each  = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
-#   yaml_body = each.value
-# }
+resource "kubectl_manifest" "karpenter_provisioner" {
+  depends_on = [module.eks_blueprints_kubernetes_addons]
+  for_each   = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
+  yaml_body  = each.value
+}
 
 resource "aws_ec2_tag" "vpc_tag" {
   resource_id = var.vpc_id
