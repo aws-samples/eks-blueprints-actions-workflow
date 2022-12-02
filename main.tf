@@ -170,105 +170,105 @@ module "eks_blueprints" {
 
 }
 
-module "eks_blueprints_kubernetes_addons" {
-  # depends_on = [module.eks_blueprints.fargate_profiles]
+# module "eks_blueprints_kubernetes_addons" {
+#   depends_on = [module.eks_blueprints.fargate_profiles]
 
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.17.0"
+#   source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.17.0"
 
-  eks_cluster_id       = module.eks_blueprints.eks_cluster_id
-  eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
-  eks_oidc_provider    = module.eks_blueprints.oidc_provider
-  eks_cluster_version  = module.eks_blueprints.eks_cluster_version
-  eks_cluster_domain   = var.eks_cluster_domain
+#   eks_cluster_id       = module.eks_blueprints.eks_cluster_id
+#   eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
+#   eks_oidc_provider    = module.eks_blueprints.oidc_provider
+#   eks_cluster_version  = module.eks_blueprints.eks_cluster_version
+#   eks_cluster_domain   = var.eks_cluster_domain
 
-  enable_argocd = true
-  # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
-  argocd_helm_config = {
-    version = var.argocd_version
-    values = [templatefile("${path.module}/argocd-values.yaml", {
-      workloads_org      = var.workloads_org
-      workloads_pat      = var.workloads_pat
-      workloads_repo_url = var.workloads_repo_url
-    })]
-    set_sensitive = [
-      {
-        name  = "configs.secret.argocdServerAdminPassword"
-        value = bcrypt_hash.argo.id
-      }
-    ]
-  }
+#   enable_argocd = true
+#   # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
+#   argocd_helm_config = {
+#     version = var.argocd_version
+#     values = [templatefile("${path.module}/argocd-values.yaml", {
+#       workloads_org      = var.workloads_org
+#       workloads_pat      = var.workloads_pat
+#       workloads_repo_url = var.workloads_repo_url
+#     })]
+#     set_sensitive = [
+#       {
+#         name  = "configs.secret.argocdServerAdminPassword"
+#         value = bcrypt_hash.argo.id
+#       }
+#     ]
+#   }
 
-  argocd_applications = {
-    workloads = {
-      path            = var.workloads_path
-      repo_url        = var.workloads_repo_url
-      target_revision = var.workloads_target_revision
-      values = {
-        spec = {
-          source = {
-            repoURL        = var.workloads_repo_url
-            targetRevision = var.workloads_target_revision
-          }
-          clusterName = local.name
-          ingress = {
-            host = var.eks_cluster_domain
-          }
-        }
-      }
-      add_on_application = false
-    }
-  }
+#   argocd_applications = {
+#     workloads = {
+#       path            = var.workloads_path
+#       repo_url        = var.workloads_repo_url
+#       target_revision = var.workloads_target_revision
+#       values = {
+#         spec = {
+#           source = {
+#             repoURL        = var.workloads_repo_url
+#             targetRevision = var.workloads_target_revision
+#           }
+#           clusterName = local.name
+#           ingress = {
+#             host = var.eks_cluster_domain
+#           }
+#         }
+#       }
+#       add_on_application = false
+#     }
+#   }
 
-  enable_amazon_eks_vpc_cni = true
-  amazon_eks_vpc_cni_config = {
-    addon_version = var.vpc_cni_version
-  }
+#   enable_amazon_eks_vpc_cni = true
+#   amazon_eks_vpc_cni_config = {
+#     addon_version = var.vpc_cni_version
+#   }
 
-  enable_amazon_eks_kube_proxy = true
-  amazon_eks_kube_proxy_config = {
-    addon_version = var.kube_proxy_version
-  }
+#   enable_amazon_eks_kube_proxy = true
+#   amazon_eks_kube_proxy_config = {
+#     addon_version = var.kube_proxy_version
+#   }
 
-  remove_default_coredns_deployment = true
-  enable_self_managed_coredns       = true
-  self_managed_coredns_helm_config = {
-    # Sets the correct annotations to ensure the Fargate provisioner is used and not the EC2 provisioner
-    compute_type       = "fargate"
-    kubernetes_version = module.eks_blueprints.eks_cluster_version
-  }
+#   remove_default_coredns_deployment = true
+#   enable_self_managed_coredns       = true
+#   self_managed_coredns_helm_config = {
+#     # Sets the correct annotations to ensure the Fargate provisioner is used and not the EC2 provisioner
+#     compute_type       = "fargate"
+#     kubernetes_version = module.eks_blueprints.eks_cluster_version
+#   }
 
-  enable_coredns_cluster_proportional_autoscaler = true
-  coredns_cluster_proportional_autoscaler_helm_config = {
-    version = var.cluster_proportional_autoscaler_version
-  }
+#   enable_coredns_cluster_proportional_autoscaler = true
+#   coredns_cluster_proportional_autoscaler_helm_config = {
+#     version = var.cluster_proportional_autoscaler_version
+#   }
 
-  enable_karpenter = true
-  karpenter_helm_config = {
-    version = var.karpenter_version
-  }
+#   enable_karpenter = true
+#   karpenter_helm_config = {
+#     version = var.karpenter_version
+#   }
 
-  enable_aws_load_balancer_controller = true
-  aws_load_balancer_controller_helm_config = {
-    version = var.aws_load_balancer_controller_version
-    set_values = [
-      {
-        name  = "vpcId"
-        value = var.vpc_id
-      },
-      {
-        name  = "podDisruptionBudget.maxUnavailable"
-        value = 1
-      }
-    ]
-  }
+#   enable_aws_load_balancer_controller = true
+#   aws_load_balancer_controller_helm_config = {
+#     version = var.aws_load_balancer_controller_version
+#     set_values = [
+#       {
+#         name  = "vpcId"
+#         value = var.vpc_id
+#       },
+#       {
+#         name  = "podDisruptionBudget.maxUnavailable"
+#         value = 1
+#       }
+#     ]
+#   }
 
-  enable_external_dns = true
-  external_dns_helm_config = {
-    version = var.external_dns_version
-  }
+#   enable_external_dns = true
+#   external_dns_helm_config = {
+#     version = var.external_dns_version
+#   }
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
 # Add the Karpenter Provisioners IAM Role
 # https://karpenter.sh/v0.19.0/getting-started/getting-started-with-terraform/#create-the-karpentercontroller-iam-role
