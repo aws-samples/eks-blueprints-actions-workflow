@@ -316,20 +316,20 @@ resource "aws_iam_instance_profile" "karpenter" {
 }
 
 # Add the default provisioner for Karpenter autoscaler
-data "kubectl_path_documents" "karpenter_provisioners" {
-  pattern = "${path.module}/manifests/default_provisioner*.yaml"
-  vars = {
-    azs                     = join(",", local.azs)
-    iam-instance-profile-id = "${local.name}-karpenter-instance-profile"
-    eks-cluster-id          = local.name
-  }
-}
+# data "kubectl_path_documents" "karpenter_provisioners" {
+#   pattern = "${path.module}/manifests/default_provisioner*.yaml"
+#   vars = {
+#     azs                     = join(",", local.azs)
+#     iam-instance-profile-id = "${local.name}-karpenter-instance-profile"
+#     eks-cluster-id          = local.name
+#   }
+# }
 
-resource "kubectl_manifest" "karpenter_provisioner" {
-  # depends_on = [module.eks_blueprints_kubernetes_addons]
-  for_each  = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
-  yaml_body = each.value
-}
+# resource "kubectl_manifest" "karpenter_provisioner" {
+#   # depends_on = [module.eks_blueprints_kubernetes_addons]
+#   for_each  = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
+#   yaml_body = each.value
+# }
 
 resource "aws_ec2_tag" "vpc_tag" {
   resource_id = var.vpc_id
