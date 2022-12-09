@@ -128,6 +128,9 @@ module "eks_blueprints" {
         },
         {
           namespace = "external-dns"
+        },
+        {
+          namespace = "tigera-operator"
         }
       ]
       subnet_ids = var.eks_private_subnet_ids
