@@ -271,6 +271,11 @@ module "eks_blueprints_kubernetes_addons" {
   }
 
   enable_calico = true
+  calico_helm_config = {
+    # We do not wait for the helm chart status since the Calico Operator cannot run on Fargate and the Karpenter provioner is not created yet
+    # When Karpenter will be running, it will detect the Calico Operator unschedulable pods and provision nodes for them
+    wait = false
+  }
 
   tags = local.tags
 }
