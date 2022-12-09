@@ -267,6 +267,8 @@ module "eks_blueprints_kubernetes_addons" {
     version = var.external_dns_version
   }
 
+  enable_calico = true
+
   tags = local.tags
 }
 
