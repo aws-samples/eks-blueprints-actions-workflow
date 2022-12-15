@@ -174,6 +174,13 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 
 ## Workflow Deployment Steps
 
+1. Clone the repo using the command below
+
+    ```shell
+    git clone https://github.com/aws-samples/eks-blueprints-actions-workflow.git
+    ```
+
+1. Create a new repo into you own GitHub organization using the cloned repo.
 1. Create a branch.
 1. If it doesn't exist already, Create a `.yml` file in the [.github/workflows](.github/workflows) folder containing the information required by the cluster you want to deploy:
     > Use [.github/workflows/terraform-deploy-eks-demo-01.yml](.github/workflows/terraform-deploy-eks-demo-01.yml) as a reference
