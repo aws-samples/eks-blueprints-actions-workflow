@@ -52,9 +52,13 @@ resource "bcrypt_hash" "argo" {
   cleartext = random_password.argocd.result
 }
 
-#tfsec:ignore:aws-ssm-secret-use-customer-key
+resource "aws_kms_key" "argocd_secret" {
+  enable_key_rotation = true
+}
+
 resource "aws_secretsmanager_secret" "argocd" {
   name                    = "${local.name}-argocd"
+  kms_key_id              = aws_kms_key.argocd_secret.arn
   recovery_window_in_days = 0 # Set to zero for this example to force delete during Terraform destroy
 }
 
