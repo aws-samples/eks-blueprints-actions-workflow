@@ -340,6 +340,7 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 | [aws_iam_role_policy_attachment.karpenter_eks_cni](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.karpenter_eks_worker_node](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.karpenter_instance_core](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_kms_key.argocd_secret](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_secretsmanager_secret.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
 | [aws_secretsmanager_secret_version.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [bcrypt_hash.argo](https://registry.terraform.io/providers/viktorradnai/bcrypt/latest/docs/resources/hash) | resource |
@@ -384,12 +385,13 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 | <a name="input_workloads_pat"></a> [workloads\_pat](#input\_workloads\_pat) | The Workloads GitHub Personnal Access Token | `string` | n/a | yes |
 | <a name="input_workloads_path"></a> [workloads\_path](#input\_workloads\_path) | The Workloads Helm Chart Path | `string` | n/a | yes |
 | <a name="input_workloads_repo_url"></a> [workloads\_repo\_url](#input\_workloads\_repo\_url) | The Workloads GitHub Repository URL | `string` | n/a | yes |
-| <a name="input_workloads_target_revision"></a> [workloads\_target\_revision](#input\_workloads\_target\_revision) | The Workloads Git Repository Target Revision (Tag or Branch) | `string` | n/a | yes |
+| <a name="input_workloads_target_revision"></a> [workloads\_target\_revision](#input\_workloads\_target\_revision) | The Workloads Git Repository Target Revision (Tag or Branch) | `string` | `"main"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | EKS Cluster Name |
 | <a name="output_configure_kubectl"></a> [configure\_kubectl](#output\_configure\_kubectl) | Configure kubectl: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig |
 <!-- END_TF_DOCS -->
 
