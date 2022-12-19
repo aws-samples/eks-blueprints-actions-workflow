@@ -43,19 +43,9 @@ variable "eks_admins_iam_role" {
   description = "The EKS Admins IAM Role Name"
 }
 
-variable "vpc_id" {
+variable "vpc_name" {
   type        = string
-  description = "The VPC ID where to deploy the EKS Cluster Worker Nodes"
-}
-
-variable "eks_public_subnet_ids" {
-  type        = list(string)
-  description = "Public subnets list where to be used by the Application Load Balancer"
-}
-
-variable "eks_private_subnet_ids" {
-  type        = list(string)
-  description = "Private subnets list where to deploy the EKS Cluster Worker Nodes"
+  description = "The name of the VPC where to deploy the EKS Cluster Worker Nodes"
 }
 
 variable "team_name" {

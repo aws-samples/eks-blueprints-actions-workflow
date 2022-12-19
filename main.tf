@@ -30,6 +30,9 @@ locals {
 
   azs = slice(data.aws_availability_zones.available.names, 0, 3)
 
+  private_subnet_ids = [for subnet in data.aws_subnet.eks_private_subnets : subnet.id]
+  public_subnet_ids  = [for subnet in data.aws_subnet.eks_public_subnets : subnet.id]
+
   tags = {
     Blueprint  = basename(path.cwd)
     GithubRepo = "github.com/aws-samples/eks-blueprints-actions-workflow"
@@ -71,8 +74,8 @@ module "eks_blueprints" {
   source             = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.17.0"
   cluster_name       = local.name
   cluster_version    = var.k8s_version
-  vpc_id             = var.vpc_id
-  private_subnet_ids = var.eks_private_subnet_ids
+  vpc_id             = data.aws_vpc.eks.id
+  private_subnet_ids = local.private_subnet_ids
 
   #----------------------------------------------------------------------------------------------------------#
   # Security groups used in this module created by the upstream modules terraform-aws-eks (https://github.com/terraform-aws-modules/terraform-aws-eks).
@@ -134,7 +137,7 @@ module "eks_blueprints" {
           namespace = "external-dns"
         }
       ]
-      subnet_ids = var.eks_private_subnet_ids
+      subnet_ids = local.private_subnet_ids
     }
   }
 
@@ -257,7 +260,7 @@ module "eks_blueprints_kubernetes_addons" {
     set_values = [
       {
         name  = "vpcId"
-        value = var.vpc_id
+        value = data.aws_vpc.eks.id
       },
       {
         name  = "podDisruptionBudget.maxUnavailable"
@@ -336,27 +339,27 @@ resource "kubectl_manifest" "karpenter_provisioner" {
 }
 
 resource "aws_ec2_tag" "vpc_tag" {
-  resource_id = var.vpc_id
+  resource_id = data.aws_vpc.eks.id
   key         = "kubernetes.io/cluster/${local.name}"
   value       = "shared"
 }
 
 resource "aws_ec2_tag" "private_subnet_cluster_alb_tag" {
-  for_each    = toset(var.eks_private_subnet_ids)
+  for_each    = toset(local.private_subnet_ids)
   resource_id = each.value
   key         = "kubernetes.io/cluster/${local.name}"
   value       = "shared"
 }
 
 resource "aws_ec2_tag" "private_subnet_cluster_karpenter_tag" {
-  for_each    = toset(var.eks_private_subnet_ids)
+  for_each    = toset(local.private_subnet_ids)
   resource_id = each.value
   key         = "karpenter.sh/discovery/${local.name}"
   value       = local.name
 }
 
 resource "aws_ec2_tag" "public_subnet_cluster_alb_tag" {
-  for_each    = toset(var.eks_public_subnet_ids)
+  for_each    = toset(local.public_subnet_ids)
   resource_id = each.value
   key         = "kubernetes.io/cluster/${local.name}"
   value       = "shared"
