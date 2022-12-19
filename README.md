@@ -57,11 +57,14 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
     export S3_BUCKET_NAME="<BucketName>"
     export CLUSTER_NAME="<BucketKey>"
     export AWS_REGION="us-west-2"
+    export CLUSTER_ID="01"
+    export ENVIRONMENT="dev"
+    export TEAM_NAME="demo"
 
     terraform init \
       -backend-config="bucket=${S3_BUCKET_NAME}" \
       -backend-config="key=${CLUSTER_NAME}/tfstate" \
-      -backend-config="${AWS_REGION}"
+      -backend-config="region=${AWS_REGION}"
     ```
 
 1. Create a tfvars file in the clusters folder with the values for your EKS cluster.
@@ -76,7 +79,10 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
 
     terraform plan \
       -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-      -var="region=${AWS_REGION}"
+      -var="region=${AWS_REGION}" \
+      -var="cluster_id=${CLUSTER_ID}" \
+      -var="environment=${ENVIRONMENT}" \
+      -var="team_name=${TEAM_NAME}" \
       -var="workloads_pat=${WORKLOADS_PAT}" \
       -out=tfplan
     ```
@@ -91,7 +97,23 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
 
   To clean up your environment, delete the sample workload and then destroy the Terraform modules in reverse order.
 
-  Destroy Argo CD, Karpenter Provisioner and IAM Role, Kubernetes Add-ons, and EKS cluster
+  1. Run Terraform init to initialize a working directory with configuration files
+
+      ```shell
+      export S3_BUCKET_NAME="<BucketName>"
+      export CLUSTER_NAME="<BucketKey>"
+      export AWS_REGION="us-west-2"
+      export CLUSTER_ID="01"
+      export ENVIRONMENT="dev"
+      export TEAM_NAME="demo"
+
+      terraform init \
+        -backend-config="bucket=${S3_BUCKET_NAME}" \
+        -backend-config="key=${CLUSTER_NAME}/tfstate" \
+        -backend-config="region=${AWS_REGION}"
+      ```
+
+  1. Run Terraform destroy to Destroy Argo CD, Karpenter Provisioner and IAM Role, Kubernetes Add-ons, and EKS cluster.
 
   ```shell
   # Argo CD
@@ -100,7 +122,10 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
     -target="aws_secretsmanager_secret.argocd" \
     -target="bcrypt_hash.argo" \
     -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}"
+    -var="region=${AWS_REGION}" \
+    -var="cluster_id=${CLUSTER_ID}" \
+    -var="environment=${ENVIRONMENT}" \
+    -var="team_name=${TEAM_NAME}" \
     -var="workloads_pat=${WORKLOADS_PAT}" \
     -auto-approve
   # Wait for 1-2 minutes to allow Karpenter to delete the empty nodes
@@ -108,28 +133,40 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
   terraform destroy \
     -target="kubectl_manifest.karpenter_provisioner" \
     -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}"
+    -var="region=${AWS_REGION}" \
+    -var="cluster_id=${CLUSTER_ID}" \
+    -var="environment=${ENVIRONMENT}" \
+    -var="team_name=${TEAM_NAME}" \
     -var="workloads_pat=${WORKLOADS_PAT}" \
     -auto-approve
   # Kubernetes Add-Ons
   terraform destroy \
     -target="module.eks_blueprints_kubernetes_addons" \
     -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}"
+    -var="region=${AWS_REGION}" \
+    -var="cluster_id=${CLUSTER_ID}" \
+    -var="environment=${ENVIRONMENT}" \
+    -var="team_name=${TEAM_NAME}" \
     -var="workloads_pat=${WORKLOADS_PAT}" \
     -auto-approve
   # EKS Cluster
   terraform destroy \
     -target="module.eks_blueprints" \
     -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}"
-    -var="workloads_pat=${WORKLOADS_PAT}" \#
+    -var="region=${AWS_REGION}" \
+    -var="cluster_id=${CLUSTER_ID}" \
+    -var="environment=${ENVIRONMENT}" \
+    -var="team_name=${TEAM_NAME}" \
+    -var="workloads_pat=${WORKLOADS_PAT}" \
     -auto-approve
   # Karpenter IAM Role
   terraform destroy \
     -target="aws_iam_role.karpenter" \
     -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}"
+    -var="region=${AWS_REGION}" \
+    -var="cluster_id=${CLUSTER_ID}" \
+    -var="environment=${ENVIRONMENT}" \
+    -var="team_name=${TEAM_NAME}" \
     -var="workloads_pat=${WORKLOADS_PAT}" \
     -auto-approve
   # VPC & Subnets Tags
@@ -137,7 +174,10 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
     -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
     -target="aws_ec2_tag.vpc_tag " \
     -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}"
+    -var="region=${AWS_REGION}" \
+    -var="cluster_id=${CLUSTER_ID}" \
+    -var="environment=${ENVIRONMENT}" \
+    -var="team_name=${TEAM_NAME}" \
     -var="workloads_pat=${WORKLOADS_PAT}" \
     -auto-approve
   ```
@@ -314,9 +354,9 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.72 |
-| <a name="provider_bcrypt"></a> [bcrypt](#provider\_bcrypt) | >= 0.1.2 |
-| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | >= 1.14 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.47.0 |
+| <a name="provider_bcrypt"></a> [bcrypt](#provider\_bcrypt) | 0.1.2 |
+| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | 1.14.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.3.2 |
 
 ## Modules
@@ -357,6 +397,11 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 | [aws_iam_role.eks_admins](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_secretsmanager_secret_version.admin_password_version](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret_version) | data source |
+| [aws_subnet.eks_private_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
+| [aws_subnet.eks_public_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
+| [aws_subnets.eks_selected_private_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
+| [aws_subnets.eks_selected_public_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
+| [aws_vpc.eks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 | [kubectl_path_documents.karpenter_provisioners](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/data-sources/path_documents) | data source |
 
 ## Inputs
@@ -370,8 +415,6 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 | <a name="input_cluster_proportional_autoscaler_version"></a> [cluster\_proportional\_autoscaler\_version](#input\_cluster\_proportional\_autoscaler\_version) | Cluster Proportional Autoscaler version | `string` | n/a | yes |
 | <a name="input_eks_admins_iam_role"></a> [eks\_admins\_iam\_role](#input\_eks\_admins\_iam\_role) | The EKS Admins IAM Role Name | `string` | n/a | yes |
 | <a name="input_eks_cluster_domain"></a> [eks\_cluster\_domain](#input\_eks\_cluster\_domain) | Route53 domain for the cluster. | `string` | n/a | yes |
-| <a name="input_eks_private_subnet_ids"></a> [eks\_private\_subnet\_ids](#input\_eks\_private\_subnet\_ids) | Private subnets list where to deploy the EKS Cluster Worker Nodes | `list(string)` | n/a | yes |
-| <a name="input_eks_public_subnet_ids"></a> [eks\_public\_subnet\_ids](#input\_eks\_public\_subnet\_ids) | Public subnets list where to be used by the Application Load Balancer | `list(string)` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment of EKS Cluster | `string` | n/a | yes |
 | <a name="input_external_dns_version"></a> [external\_dns\_version](#input\_external\_dns\_version) | External DNS version | `string` | n/a | yes |
 | <a name="input_k8s_version"></a> [k8s\_version](#input\_k8s\_version) | Kubernetes version | `string` | n/a | yes |
@@ -380,7 +423,7 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 | <a name="input_region"></a> [region](#input\_region) | The AWS region where to deploy the EKS Cluster | `string` | n/a | yes |
 | <a name="input_team_name"></a> [team\_name](#input\_team\_name) | The name of the team that will own EKS Cluster | `string` | n/a | yes |
 | <a name="input_vpc_cni_version"></a> [vpc\_cni\_version](#input\_vpc\_cni\_version) | VPC CNI add-on version | `string` | n/a | yes |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The VPC ID where to deploy the EKS Cluster Worker Nodes | `string` | n/a | yes |
+| <a name="input_vpc_name"></a> [vpc\_name](#input\_vpc\_name) | The name of the VPC where to deploy the EKS Cluster Worker Nodes | `string` | n/a | yes |
 | <a name="input_workloads_org"></a> [workloads\_org](#input\_workloads\_org) | The Workloads GitHub Organization | `string` | n/a | yes |
 | <a name="input_workloads_pat"></a> [workloads\_pat](#input\_workloads\_pat) | The Workloads GitHub Personnal Access Token | `string` | n/a | yes |
 | <a name="input_workloads_path"></a> [workloads\_path](#input\_workloads\_path) | The Workloads Helm Chart Path | `string` | n/a | yes |
