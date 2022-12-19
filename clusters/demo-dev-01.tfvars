@@ -1,4 +1,4 @@
-eks_admins_iam_role = "eks-admins"
+eks_admins_iam_role    = "eks-admins"
 vpc_name               = "eks-vpc"
 region                 = "us-west-2"
 eks_cluster_domain     = "micbegin.people.aws.dev"
