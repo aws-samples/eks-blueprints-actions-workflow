@@ -166,8 +166,12 @@ jobs:
           -target="aws_ec2_tag.public_subnet_cluster_alb_tag" \
           -target="aws_ec2_tag.vpc_tag " \
           -auto-approve
-    - name: Deactivate deployment
-      uses: strumwolf/delete-deployment-environment@v2
+  deactivate-deployment:
+    needs: [terraform-eks-destroy]
+    name: 'Deactivate deployment'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: strumwolf/delete-deployment-environment@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         environment: ${{ inputs.environment }}
