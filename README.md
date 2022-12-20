@@ -115,72 +115,72 @@ You also need to provide a [GitHub Personal Access Token](https://docs.github.co
 
   1. Run Terraform destroy to Destroy Argo CD, Karpenter Provisioner and IAM Role, Kubernetes Add-ons, and EKS cluster.
 
-  ```shell
-  # Argo CD
-  terraform destroy \
-    -target="module.eks_blueprints_kubernetes_addons.module.argocd" \
-    -target="aws_secretsmanager_secret.argocd" \
-    -target="bcrypt_hash.argo" \
-    -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}" \
-    -var="cluster_id=${CLUSTER_ID}" \
-    -var="environment=${ENVIRONMENT}" \
-    -var="team_name=${TEAM_NAME}" \
-    -var="workloads_pat=${WORKLOADS_PAT}" \
-    -auto-approve
-  # Wait for 1-2 minutes to allow Karpenter to delete the empty nodes
-  # Karpenter Provisioner
-  terraform destroy \
-    -target="kubectl_manifest.karpenter_provisioner" \
-    -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}" \
-    -var="cluster_id=${CLUSTER_ID}" \
-    -var="environment=${ENVIRONMENT}" \
-    -var="team_name=${TEAM_NAME}" \
-    -var="workloads_pat=${WORKLOADS_PAT}" \
-    -auto-approve
-  # Kubernetes Add-Ons
-  terraform destroy \
-    -target="module.eks_blueprints_kubernetes_addons" \
-    -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}" \
-    -var="cluster_id=${CLUSTER_ID}" \
-    -var="environment=${ENVIRONMENT}" \
-    -var="team_name=${TEAM_NAME}" \
-    -var="workloads_pat=${WORKLOADS_PAT}" \
-    -auto-approve
-  # EKS Cluster
-  terraform destroy \
-    -target="module.eks_blueprints" \
-    -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}" \
-    -var="cluster_id=${CLUSTER_ID}" \
-    -var="environment=${ENVIRONMENT}" \
-    -var="team_name=${TEAM_NAME}" \
-    -var="workloads_pat=${WORKLOADS_PAT}" \
-    -auto-approve
-  # Karpenter IAM Role
-  terraform destroy \
-    -target="aws_iam_role.karpenter" \
-    -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}" \
-    -var="cluster_id=${CLUSTER_ID}" \
-    -var="environment=${ENVIRONMENT}" \
-    -var="team_name=${TEAM_NAME}" \
-    -var="workloads_pat=${WORKLOADS_PAT}" \
-    -auto-approve
-  # VPC & Subnets Tags
-  terraform destroy \
-    -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
-    -target="aws_ec2_tag.vpc_tag " \
-    -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
-    -var="region=${AWS_REGION}" \
-    -var="cluster_id=${CLUSTER_ID}" \
-    -var="environment=${ENVIRONMENT}" \
-    -var="team_name=${TEAM_NAME}" \
-    -var="workloads_pat=${WORKLOADS_PAT}" \
-    -auto-approve
-  ```
+      ```shell
+      # Argo CD
+      terraform destroy \
+        -target="module.eks_blueprints_kubernetes_addons.module.argocd" \
+        -target="aws_secretsmanager_secret.argocd" \
+        -target="bcrypt_hash.argo" \
+        -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
+        -var="region=${AWS_REGION}" \
+        -var="cluster_id=${CLUSTER_ID}" \
+        -var="environment=${ENVIRONMENT}" \
+        -var="team_name=${TEAM_NAME}" \
+        -var="workloads_pat=${WORKLOADS_PAT}" \
+        -auto-approve
+      # Wait for 1-2 minutes to allow Karpenter to delete the empty nodes
+      # Karpenter Provisioner
+      terraform destroy \
+        -target="kubectl_manifest.karpenter_provisioner" \
+        -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
+        -var="region=${AWS_REGION}" \
+        -var="cluster_id=${CLUSTER_ID}" \
+        -var="environment=${ENVIRONMENT}" \
+        -var="team_name=${TEAM_NAME}" \
+        -var="workloads_pat=${WORKLOADS_PAT}" \
+        -auto-approve
+      # Kubernetes Add-Ons
+      terraform destroy \
+        -target="module.eks_blueprints_kubernetes_addons" \
+        -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
+        -var="region=${AWS_REGION}" \
+        -var="cluster_id=${CLUSTER_ID}" \
+        -var="environment=${ENVIRONMENT}" \
+        -var="team_name=${TEAM_NAME}" \
+        -var="workloads_pat=${WORKLOADS_PAT}" \
+        -auto-approve
+      # EKS Cluster
+      terraform destroy \
+        -target="module.eks_blueprints" \
+        -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
+        -var="region=${AWS_REGION}" \
+        -var="cluster_id=${CLUSTER_ID}" \
+        -var="environment=${ENVIRONMENT}" \
+        -var="team_name=${TEAM_NAME}" \
+        -var="workloads_pat=${WORKLOADS_PAT}" \
+        -auto-approve
+      # Karpenter IAM Role
+      terraform destroy \
+        -target="aws_iam_role.karpenter" \
+        -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
+        -var="region=${AWS_REGION}" \
+        -var="cluster_id=${CLUSTER_ID}" \
+        -var="environment=${ENVIRONMENT}" \
+        -var="team_name=${TEAM_NAME}" \
+        -var="workloads_pat=${WORKLOADS_PAT}" \
+        -auto-approve
+      # VPC & Subnets Tags
+      terraform destroy \
+        -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
+        -target="aws_ec2_tag.vpc_tag " \
+        -var-file="./clusters/${CLUSTER_NAME}.tfvars" \
+        -var="region=${AWS_REGION}" \
+        -var="cluster_id=${CLUSTER_ID}" \
+        -var="environment=${ENVIRONMENT}" \
+        -var="team_name=${TEAM_NAME}" \
+        -var="workloads_pat=${WORKLOADS_PAT}" \
+        -auto-approve
+      ```
 
 ## How to Deploy with a GitHub Actions Workflow
 
