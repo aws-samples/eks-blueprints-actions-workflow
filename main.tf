@@ -158,7 +158,7 @@ module "eks_blueprints" {
     },
     {
       rolearn  = data.aws_iam_role.eks_admins.arn
-      username = "eks-admins"
+      username = "eks-admins:{{SessionName}}"
       groups = [
         "system:masters"
       ]
