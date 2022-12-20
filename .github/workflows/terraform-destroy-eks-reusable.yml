@@ -41,133 +41,133 @@ defaults:
     shell: bash
 
 jobs:
-  terraform-plan:
-    name: 'Terraform Plan'
-    runs-on: ubuntu-latest
-    outputs:
-      exitcode: ${{ steps.plan.outputs.exitcode }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Terraform Init
-      id: init
-      uses: ./.github/actions/terraform-init
-      with:
-        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-        deploy: true
-        aws-region: ${{ inputs.aws-region }}
-        s3-bucket: ${{ inputs.s3-bucket }}
-        team: ${{ inputs.team }}
-        environment: ${{ inputs.environment }}
-        deployment-id: ${{ inputs.deployment-id }}
-        terraform-wrapper: true
-    - name: Terraform Plan
-      id: plan
-      uses: ./.github/actions/terraform-plan
-      with:
-        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-        WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        deploy: false
-        aws-region: ${{ inputs.aws-region }}
-        team: ${{ inputs.team }}
-        environment: ${{ inputs.environment }}
-        deployment-id: ${{ steps.init.outputs.cluster-id }}
-        cluster-var-file: ${{ steps.init.outputs.cluster-var-file }}
-        init-outcome: ${{ steps.init.outputs.outcome }}
-  terraform-eks-destroy:
-    needs: [terraform-plan]
-    name: 'Terraform EKS Destroy'
-    if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
-          (inputs.deployment-id == github.head_ref && needs.terraform-plan.outputs.exitcode == 2)
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Terraform Init
-      id: init
-      uses: ./.github/actions/terraform-init
-      with:
-        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-        AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-        deploy: true
-        aws-region: ${{ inputs.aws-region }}
-        s3-bucket: ${{ inputs.s3-bucket }}
-        team: ${{ inputs.team }}
-        environment: ${{ inputs.environment }}
-        deployment-id: ${{ inputs.deployment-id }}
-        terraform-wrapper: false
-    - name: Terraform Destroy
-      run: |
-        terraform destroy \
-          -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
-          -var="team_name=${{ inputs.team }}" \
-          -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="module.eks_blueprints_kubernetes_addons.module.argocd" \
-          -target="aws_secretsmanager_secret.argocd" \
-          -target="bcrypt_hash.argo" \
-          -auto-approve
+  # terraform-plan:
+  #   name: 'Terraform Plan'
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     exitcode: ${{ steps.plan.outputs.exitcode }}
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+  #   - name: Terraform Init
+  #     id: init
+  #     uses: ./.github/actions/terraform-init
+  #     with:
+  #       AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+  #       AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+  #       deploy: true
+  #       aws-region: ${{ inputs.aws-region }}
+  #       s3-bucket: ${{ inputs.s3-bucket }}
+  #       team: ${{ inputs.team }}
+  #       environment: ${{ inputs.environment }}
+  #       deployment-id: ${{ inputs.deployment-id }}
+  #       terraform-wrapper: true
+  #   - name: Terraform Plan
+  #     id: plan
+  #     uses: ./.github/actions/terraform-plan
+  #     with:
+  #       AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+  #       AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+  #       WORKLOADS_PAT: ${{ secrets.WORKLOADS_PAT }}
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       deploy: false
+  #       aws-region: ${{ inputs.aws-region }}
+  #       team: ${{ inputs.team }}
+  #       environment: ${{ inputs.environment }}
+  #       deployment-id: ${{ steps.init.outputs.cluster-id }}
+  #       cluster-var-file: ${{ steps.init.outputs.cluster-var-file }}
+  #       init-outcome: ${{ steps.init.outputs.outcome }}
+  # terraform-eks-destroy:
+  #   needs: [terraform-plan]
+  #   name: 'Terraform EKS Destroy'
+  #   if: (github.ref_name == 'main' && needs.terraform-plan.outputs.exitcode == 2) ||
+  #         (inputs.deployment-id == github.head_ref && needs.terraform-plan.outputs.exitcode == 2)
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ inputs.environment }}
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+  #   - name: Terraform Init
+  #     id: init
+  #     uses: ./.github/actions/terraform-init
+  #     with:
+  #       AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+  #       AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+  #       deploy: true
+  #       aws-region: ${{ inputs.aws-region }}
+  #       s3-bucket: ${{ inputs.s3-bucket }}
+  #       team: ${{ inputs.team }}
+  #       environment: ${{ inputs.environment }}
+  #       deployment-id: ${{ inputs.deployment-id }}
+  #       terraform-wrapper: false
+  #   - name: Terraform Destroy
+  #     run: |
+  #       terraform destroy \
+  #         -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
+  #         -var="team_name=${{ inputs.team }}" \
+  #         -var="environment=${{ inputs.environment }}" \
+  #         -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
+  #         -var="region=${{ inputs.aws-region }}" \
+  #         -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+  #         -target="module.eks_blueprints_kubernetes_addons.module.argocd" \
+  #         -target="aws_secretsmanager_secret.argocd" \
+  #         -target="bcrypt_hash.argo" \
+  #         -auto-approve
 
-        terraform destroy \
-          -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
-          -var="team_name=${{ inputs.team }}" \
-          -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="kubectl_manifest.karpenter_provisioner" \
-          -auto-approve
+  #       terraform destroy \
+  #         -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
+  #         -var="team_name=${{ inputs.team }}" \
+  #         -var="environment=${{ inputs.environment }}" \
+  #         -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
+  #         -var="region=${{ inputs.aws-region }}" \
+  #         -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+  #         -target="kubectl_manifest.karpenter_provisioner" \
+  #         -auto-approve
 
-        terraform destroy \
-          -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
-          -var="team_name=${{ inputs.team }}" \
-          -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="module.eks_blueprints_kubernetes_addons" \
-          -auto-approve
+  #       terraform destroy \
+  #         -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
+  #         -var="team_name=${{ inputs.team }}" \
+  #         -var="environment=${{ inputs.environment }}" \
+  #         -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
+  #         -var="region=${{ inputs.aws-region }}" \
+  #         -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+  #         -target="module.eks_blueprints_kubernetes_addons" \
+  #         -auto-approve
 
-        terraform destroy \
-          -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
-          -var="team_name=${{ inputs.team }}" \
-          -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="module.eks_blueprints" \
-          -auto-approve
+  #       terraform destroy \
+  #         -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
+  #         -var="team_name=${{ inputs.team }}" \
+  #         -var="environment=${{ inputs.environment }}" \
+  #         -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
+  #         -var="region=${{ inputs.aws-region }}" \
+  #         -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+  #         -target="module.eks_blueprints" \
+  #         -auto-approve
 
-        terraform destroy \
-          -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
-          -var="team_name=${{ inputs.team }}" \
-          -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="aws_iam_role.karpenter" \
-          -auto-approve
+  #       terraform destroy \
+  #         -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
+  #         -var="team_name=${{ inputs.team }}" \
+  #         -var="environment=${{ inputs.environment }}" \
+  #         -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
+  #         -var="region=${{ inputs.aws-region }}" \
+  #         -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+  #         -target="aws_iam_role.karpenter" \
+  #         -auto-approve
 
-        terraform destroy \
-          -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
-          -var="team_name=${{ inputs.team }}" \
-          -var="environment=${{ inputs.environment }}" \
-          -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
-          -var="region=${{ inputs.aws-region }}" \
-          -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
-          -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
-          -target="aws_ec2_tag.private_subnet_cluster_alb_tag" \
-          -target="aws_ec2_tag.public_subnet_cluster_alb_tag" \
-          -target="aws_ec2_tag.vpc_tag " \
-          -auto-approve
+  #       terraform destroy \
+  #         -var-file="./clusters/${{ steps.init.outputs.cluster-var-file }}" \
+  #         -var="team_name=${{ inputs.team }}" \
+  #         -var="environment=${{ inputs.environment }}" \
+  #         -var="cluster_id=${{ steps.init.outputs.cluster-id }}" \
+  #         -var="region=${{ inputs.aws-region }}" \
+  #         -var="workloads_pat=${{ secrets.WORKLOADS_PAT }}" \
+  #         -target="aws_ec2_tag.private_subnet_cluster_karpenter_tag" \
+  #         -target="aws_ec2_tag.private_subnet_cluster_alb_tag" \
+  #         -target="aws_ec2_tag.public_subnet_cluster_alb_tag" \
+  #         -target="aws_ec2_tag.vpc_tag " \
+  #         -auto-approve
   deactivate-deployment:
-    needs: [terraform-eks-destroy]
+    # needs: [terraform-eks-destroy]
     name: 'Deactivate deployment'
     runs-on: ubuntu-latest
     steps:
