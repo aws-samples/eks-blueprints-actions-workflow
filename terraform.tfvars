@@ -1,6 +1,6 @@
-k8s_version                             = "1.23"
+k8s_version                             = "1.24"
 vpc_cni_version                         = "v1.12.0-eksbuild.1"
-kube_proxy_version                      = "v1.23.13-eksbuild.2"
+kube_proxy_version                      = "v1.24.7-eksbuild.1"
 cluster_proportional_autoscaler_version = "1.0.1"
 karpenter_version                       = "v0.18.1"
 argocd_version                          = "5.13.8"
