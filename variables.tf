@@ -73,11 +73,6 @@ variable "eks_cluster_domain" {
   description = "Route53 domain for the cluster."
 }
 
-variable "acm_certificate_domain" {
-  type        = string
-  description = "Route53 certificate domain"
-}
-
 variable "workloads_org" {
   type        = string
   description = "The Workloads GitHub Organization"
