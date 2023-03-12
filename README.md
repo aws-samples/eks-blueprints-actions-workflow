@@ -1,5 +1,7 @@
 # EKS Clusters using Karpenter on Fargate deployed with the Terraform EKS Blueprints and GitHub Actions Workflows
 
+[![checkov](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/checkov.yml/badge.svg)](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/checkov.yml)[![tfsec](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/tfsec.yml/badge.svg)](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/tfsec.yml)[![tflint](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/tflint.yml/badge.svg)](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/tflint.yml)[![terraform-docs](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/terraform-docs.yml/badge.svg)](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/terraform-docs.yml)
+
 > **Warning**
 > You are responsible for the cost of the AWS services used while running this sample deployment. There is no additional cost for using this sample. For full details, see the pricing pages for each AWS service you will be using in this sample. Prices are subject to change.
 > This sample code should only be used for demonstration purposes and should not be used in a production environment.
@@ -386,17 +388,13 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 | [bcrypt_hash.argo](https://registry.terraform.io/providers/viktorradnai/bcrypt/latest/docs/resources/hash) | resource |
 | [kubectl_manifest.karpenter_provisioner](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/resources/manifest) | resource |
 | [random_password.argocd](https://registry.terraform.io/providers/hashicorp/random/3.3.2/docs/resources/password) | resource |
-| [aws_acm_certificate.issued](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/acm_certificate) | data source |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_eks_cluster_auth.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/eks_cluster_auth) | data source |
 | [aws_iam_policy.ecr_read_only](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.eks_cni](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.eks_worker_node](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.instance_core](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_role.eks_admins](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
-| [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
-| [aws_secretsmanager_secret_version.admin_password_version](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret_version) | data source |
 | [aws_subnet.eks_private_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_subnet.eks_public_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_subnets.eks_selected_private_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
@@ -408,7 +406,6 @@ Create the Environments you want to manage in your GtiHub repository. This examp
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_acm_certificate_domain"></a> [acm\_certificate\_domain](#input\_acm\_certificate\_domain) | Route53 certificate domain | `string` | n/a | yes |
 | <a name="input_argocd_version"></a> [argocd\_version](#input\_argocd\_version) | Argo CD version | `string` | n/a | yes |
 | <a name="input_aws_load_balancer_controller_version"></a> [aws\_load\_balancer\_controller\_version](#input\_aws\_load\_balancer\_controller\_version) | AWS Load Balancer Controller version | `string` | n/a | yes |
 | <a name="input_cluster_id"></a> [cluster\_id](#input\_cluster\_id) | The EKS Cluster ID | `string` | n/a | yes |
