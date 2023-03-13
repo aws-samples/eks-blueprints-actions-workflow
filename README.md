@@ -198,7 +198,7 @@ The following resources need to be available in the AWS accounts where you want 
 - [GitHub Actions IAM OIDC Identity Provider](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services)
 - GitHub Actions IAM Role with the [EKS Blueprints Minimum IAM policy](https://aws-ia.github.io/terraform-aws-eks-blueprints/latest/iam/minimum-iam-policy/)
 
-Ensure that you all the required Actions Secrets are present in the [Secrets - Actions](https://github.com/mlseoperations/aws-acc-digitallabsdev-eks/settings/secrets/actions) settings before creating a workflow to deploy an EKS cluster.
+Ensure that you all the required Actions Secrets are present in the [Secrets - Actions](https://github.com/aws-samples/eks-blueprints-actions-workflow/settings/secrets/actions) settings before creating a workflow to deploy an EKS cluster.
 
 For example, to deploy a cluster in two environments named Dev and Staging you will need the following [GitHub Actions Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets):
 
