@@ -16,6 +16,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
       - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
+        uses: aquasecurity/tfsec-action@v1.0.3
         with:
           additional_args: '--concise-output --exclude-downloaded-modules'
