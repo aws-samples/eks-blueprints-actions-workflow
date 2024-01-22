@@ -113,7 +113,7 @@ jobs:
         deployment-id: ${{ inputs.deployment-id }}
         terraform-wrapper: false
     - name: Retrieve Terraform Plan from Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: tfplan
         key: tfplan-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
