@@ -26,7 +26,7 @@ kind: EC2NodeClass
 metadata:
   name: default
 spec:
-  role: {{ .Values.karpenter.iamRoleArn }}
+  role: {{ .Values.iamRoleArn }}
   amiFamily: Bottlerocket
   subnetSelectorTerms:
     - tags:
