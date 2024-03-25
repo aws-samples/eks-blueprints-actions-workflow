@@ -2,7 +2,7 @@
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
-  name: {{ .Values.karpenter.settings.clusterName }}-default
+  name: {{ .Values.clusterName }}-default
 spec:
   disruption:
     consolidationPolicy: WhenUnderutilized
@@ -26,13 +26,13 @@ kind: EC2NodeClass
 metadata:
   name: default
 spec:
-  role: {{ .Values.karpenter.serviceAccount.iamRoleArn }}
+  role: {{ .Values.karpenter.iamRoleArn }}
   amiFamily: Bottlerocket
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery/{{ .Values.karpenter.settings.clusterName }}: {{ .Values.karpenter.settings.clusterName }}
+        karpenter.sh/discovery/{{ .Values.clusterName }}: {{ .Values.clusterName }}
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery/{{ .Values.karpenter.settings.clusterName }}: {{ .Values.karpenter.settings.clusterName }}
+        karpenter.sh/discovery/{{ .Values.clusterName }}: {{ .Values.clusterName }}
   tags:
-    karpenter.sh/discovery/{{ .Values.karpenter.settings.clusterName }}: {{ .Values.karpenter.settings.clusterName }}
+    karpenter.sh/discovery/{{ .Values.clusterName }}: {{ .Values.clusterName }}
