@@ -2,11 +2,11 @@
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
-  name: {{ .Values.clusterName }}-default
+  name: default
 spec:
   disruption:
     consolidationPolicy: WhenUnderutilized
-  expireAfter: 24h
+    expireAfter: 24h
   template:
     spec:
       requirements:
