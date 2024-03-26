@@ -4,29 +4,23 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.72"
+      version = ">=5.0.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.10"
+      version = ">=2.0.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = ">= 2.4.1"
+      version = ">=2.0.0"
     }
     kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.14"
+      source  = "alekc/kubectl"
+      version = ">= 2.0.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.3.2"
-    }
-    bcrypt = {
-      source  = "viktorradnai/bcrypt"
-      version = ">= 0.1.2"
+      version = ">=3.0.0"
     }
   }
-
-  backend "s3" {}
 }
