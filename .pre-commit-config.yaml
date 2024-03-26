@@ -1,10 +1,25 @@
+ci:
+  autofix_commit_msg: |
+        [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+        for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
+      - id: check-yaml
+      - id: check-json
       - id: trailing-whitespace
         args: ["--markdown-linebreak-ext=md"]
       - id: check-added-large-files
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
       - id: check-merge-conflict
       - id: check-vcs-permalinks
       - id: detect-private-key
@@ -12,40 +27,30 @@ repos:
         args: ["--allow-missing-credentials"]
       - id: end-of-file-fixer
       - id: no-commit-to-branch
+      - id: pretty-format-json
+        args:
+          - --autofix
   - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.16.0
+    rev: v8.18.2
     hooks:
       - id: gitleaks
   - repo: https://github.com/bridgecrewio/checkov.git
-    rev: 2.3.79
+    rev: 3.2.47
     hooks:
       - id: checkov
         args:
-          - --quiet
-          - --download-external-modules=false
-          - --skip-check=CKV2_GHA_1
-          - --soft-fail
+          - --config-file
+          - .checkov.yaml
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.77.1
+    rev: v1.88.4
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
+        args:
+        - --hook-config=--retry-once-with-cleanup=true
       - id: terraform_docs
         args:
-          - "--args=--lockfile=false"
+          - --args=--config=.terraform-docs.yaml
       - id: terraform_tflint
-      - id: terraform_tfsec
         args:
-          - --args=--concise-output --exclude-downloaded-modules
-  - repo: https://github.com/terraform-docs/terraform-docs
-    rev: v0.16.0
-    hooks:
-      - id: terraform-docs-go
-        args:
-          - markdown
-          - table
-          - --output-file
-          - README.md
-          - --output-mode
-          - inject
-          - .
+          - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl

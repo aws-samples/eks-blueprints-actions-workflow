@@ -1,10 +1,26 @@
 # Contributing Guidelines
 
 Thank you for your interest in contributing to our project. Whether it's a bug report, new feature, correction, or additional
-documentation, we greatly value feedback and contributions from our community.
+<!-- TOC -->
 
-Please read through this document before submitting any issues or pull requests to ensure we have all the necessary
-information to effectively respond to your bug report or contribution.
+- [Contributing Guidelines](#contributing-guidelines)
+  - [Requirements](#requirements)
+    - [Mandatory](#mandatory)
+    - [Recommended](#recommended)
+  - [Local Development Setup](#local-development-setup)
+    - [Install Visual Studio Code recommended extensions](#install-visual-studio-code-recommended-extensions)
+    - [Install latest terraform version](#install-latest-terraform-version)
+    - [Install pre-commit hooks](#install-pre-commit-hooks)
+    - [Execute pre-commit hooks manually on all files](#execute-pre-commit-hooks-manually-on-all-files)
+    - [Update pre-commit hooks](#update-pre-commit-hooks)
+    - [Execute tests manually](#execute-tests-manually)
+  - [Reporting Bugs/Feature Requests](#reporting-bugsfeature-requests)
+  - [Contributing via Pull Requests](#contributing-via-pull-requests)
+  - [Finding contributions to work on](#finding-contributions-to-work-on)
+  - [Security issue notifications](#security-issue-notifications)
+  - [Licensing](#licensing)
+
+<!-- /TOC -->
 
 ## Requirements
 
@@ -12,18 +28,18 @@ The following tools need to be installed on your local machine:
 
 ### Mandatory
 
-* [pre-commit](https://pre-commit.com/)
-* [tfenv](https://github.com/tfutils/tfenv)
-* [tflint](https://github.com/terraform-linters/tflint)
-* [tfsec](https://github.com/aquasecurity/tfsec)
-* [terraform-docs](https://github.com/terraform-docs/terraform-docs)
-* [checkov](https://github.com/bridgecrewio/checkov)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [pre-commit](https://pre-commit.com/)
+- [tfenv](https://github.com/tfutils/tfenv)
+- [tflint](https://github.com/terraform-linters/tflint)
+- [terraform-docs](https://github.com/terraform-docs/terraform-docs)
+- [checkov](https://github.com/bridgecrewio/checkov)
 
 ### Recommended
 
-* [oh-my-zsh](https://ohmyz.sh/)
-* [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
-* [spaceship-prompt](https://github.com/spaceship-prompt/spaceship-prompt)
+- [oh-my-zsh](https://ohmyz.sh/)
+- [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
+- [spaceship-prompt](https://github.com/spaceship-prompt/spaceship-prompt)
 
 ## Local Development Setup
 
@@ -45,7 +61,6 @@ tfenv use latest
 > This will ensure that the commands we want to execute before each commit are executed automatically.
 
 ```shell
-pre-commit autoupdate
 pre-commit install
 ```
 
@@ -62,6 +77,12 @@ pre-commit run checkov --all-files
 pre-commit run terraform_docs --all-files
 ```
 
+### Update pre-commit hooks
+
+```shell
+pre-commit autoupdate
+```
+
 ## Reporting Bugs/Feature Requests
 
 We welcome you to use the GitHub issue tracker to report bugs or suggest features.
@@ -69,10 +90,10 @@ We welcome you to use the GitHub issue tracker to report bugs or suggest feature
 When filing an issue, please check existing open, or recently closed, issues to make sure somebody else hasn't already
 reported the issue. Please try to include as much information as you can. Details like these are incredibly useful:
 
-* A reproducible test case or series of steps
-* The version of our code being used
-* Any modifications you've made relevant to the bug
-* Anything unusual about your environment or deployment
+- A reproducible test case or series of steps
+- The version of our code being used
+- Any modifications you've made relevant to the bug
+- Anything unusual about your environment or deployment
 
 ## Contributing via Pull Requests
 
@@ -98,15 +119,9 @@ GitHub provides additional document on [forking a repository](https://help.githu
 
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
 
-## Code of Conduct
-
-This project has adopted the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct).
-For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq) or contact
-opensource-codeofconduct@amazon.com with any additional questions or comments.
-
 ## Security issue notifications
 
-If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public github issue.
+If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not*- create a public github issue.
 
 ## Licensing
 

@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    namespace: kube-system
+    server: "{{ .Values.spec.destination.server }}"
+  source:
+    repoURL: https://kubernetes-sigs.github.io/external-dns/
+    targetRevision: "{{ .Values.externalDns.version }}"
+    chart: external-dns
+    helm:
+      valuesObject:
+        serviceAccount:
+          annotations:
+            eks.amazonaws.com/role-arn: "{{ .Values.externalDns.iamRoleArn }}"
+          name: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

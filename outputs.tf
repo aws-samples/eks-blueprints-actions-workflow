@@ -1,9 +1,4 @@
 output "configure_kubectl" {
-  description = "Configure kubectl: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
-  value       = module.eks_blueprints.configure_kubectl
-}
-
-output "cluster_name" {
-  description = "EKS Cluster Name"
-  value       = local.name
+  description = "Configure kubectl. Make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
+  value       = "aws eks --region ${var.region} update-kubeconfig --name ${local.name}"
 }

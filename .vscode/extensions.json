@@ -5,9 +5,9 @@
     "hashicorp.terraform",
     "amazonwebservices.aws-toolkit-vscode",
     "donjayamanne.githistory",
-    "eamodio.gitlens",
     "esbenp.prettier-vscode",
     "vscode-icons-team.vscode-icons",
-    "editorconfig.editorconfig"
+    "editorconfig.editorconfig",
+    "github.vscode-github-actions"
   ]
 }
