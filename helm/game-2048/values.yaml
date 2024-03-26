@@ -1,4 +1,2 @@
-spec:
-  ingress:
-    host:
-    type: alb
+ingress:
+  type: alb
