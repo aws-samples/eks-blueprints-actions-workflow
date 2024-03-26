@@ -35,14 +35,14 @@ repos:
     hooks:
       - id: gitleaks
   - repo: https://github.com/bridgecrewio/checkov.git
-    rev: 3.2.45
+    rev: 3.2.47
     hooks:
       - id: checkov
         args:
           - --config-file
           - .checkov.yaml
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.88.3
+    rev: v1.88.4
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
