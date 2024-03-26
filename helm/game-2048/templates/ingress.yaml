@@ -8,9 +8,9 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
 spec:
-  ingressClassName: {{ .Values.spec.ingress.type }}
+  ingressClassName: {{ .Values.ingress.type }}
   rules:
-    - host: game-2048-{{ .Values.spec.clusterName }}.{{ .Values.spec.ingress.host }}
+    - host: game-2048-{{ .Values.clusterName }}.{{ .Values.ingress.host }}
       http:
         paths:
         - path: /
