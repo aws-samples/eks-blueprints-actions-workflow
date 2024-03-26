@@ -1,0 +1,31 @@
+## Argo CD configuration
+## Ref: https://github.com/argoproj/argo-cd
+##
+
+## Argo Configs
+configs:
+  # General Argo CD configuration
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+  cm:
+    # -- Enable exec feature in Argo UI
+    ## Ref: https://argo-cd.readthedocs.io/en/latest/operator-manual/rbac/#exec-resource
+    exec.enabled: true
+
+  # -- Repository credentials to be used as Templates for other repos
+  ## Creates a secret for each key/value specified below to create repository credentials
+  credentialTemplates:
+    https-creds:
+      url: https://github.com/${workloads_org}
+      password: ${workloads_pat}
+
+  # -- Repositories list to be used by applications
+  ## Creates a secret for each key/value specified below to create repositories
+  ## Note: the last example in the list would use a repository credential template, configured under "configs.credentialTemplates".
+  repositories:
+    workloads-git-repo:
+      url: ${workloads_repo_url}
+    karpenter-oci:
+      url: public.ecr.aws/karpenter/karpenter
+      type: helm
+      name: karpenter
+      enableOCI: "true"
