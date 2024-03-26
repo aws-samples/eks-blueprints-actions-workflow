@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aws-load-balancer-controller
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    namespace: kube-system
+    server: "{{ .Values.spec.destination.server }}"
+  source:
+    repoURL: https://aws.github.io/eks-charts
+    targetRevision: "{{ .Values.awsLoadBalancerController.version }}"
+    chart: aws-load-balancer-controller
+    helm:
+      valuesObject:
+        clusterName: "{{ .Values.clusterName }}"
+        vpcId: "{{ .Values.vpcId }}"
+        serviceAccount:
+          annotations:
+            eks.amazonaws.com/role-arn: "{{ .Values.awsLoadBalancerController.iamRoleArn }}"
+          name: aws-load-balancer-controller
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

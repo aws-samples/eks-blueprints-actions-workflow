@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    namespace: karpenter
+    server: "{{ .Values.spec.destination.server }}"
+  source:
+    repoURL: public.ecr.aws/karpenter
+    targetRevision: "{{ .Values.karpenter.version }}"
+    chart: karpenter
+    helm:
+      valuesObject:
+        settings:
+          clusterName: "{{ .Values.clusterName }}"
+          clusterEndpoint: "{{ .Values.clusterEndpoint }}"
+          interruptionQueue: "{{ .Values.karpenter.interruptionQueue }}"
+        serviceAccount:
+          annotations:
+            eks.amazonaws.com/role-arn: "{{ .Values.karpenter.iamRoleArn }}"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
