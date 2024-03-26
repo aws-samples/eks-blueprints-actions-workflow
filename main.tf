@@ -125,9 +125,6 @@ resource "helm_release" "argocd_applications" {
 
   values = [
     yamlencode({
-      spec = { source = { targetRevision = "feature/eks-1.29" } }
-    }),
-    yamlencode({
       clusterName     = module.eks.cluster_name
       clusterEndpoint = module.eks.cluster_endpoint
       vpcId           = data.aws_vpc.eks.id
