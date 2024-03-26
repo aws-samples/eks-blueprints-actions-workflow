@@ -24,5 +24,4 @@ access_entries = {
 }
 
 workloads_org      = "aws-samples"
-workloads_path     = "argocd"
 workloads_repo_url = "https://github.com/aws-samples/eks-blueprints-actions-workflow.git"
