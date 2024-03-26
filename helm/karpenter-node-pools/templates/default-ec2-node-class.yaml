@@ -7,9 +7,9 @@ spec:
   amiFamily: Bottlerocket
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery/"{{ .Values.clusterName }}": "{{ .Values.clusterName }}"
+        karpenter.sh/discovery/{{ .Values.clusterName }}: "{{ .Values.clusterName }}"
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery/"{{ .Values.clusterName }}": "{{ .Values.clusterName }}"
+        karpenter.sh/discovery/{{ .Values.clusterName }}: "{{ .Values.clusterName }}"
   tags:
-    karpenter.sh/discovery/"{{ .Values.clusterName }}": "{{ .Values.clusterName }}"
+    karpenter.sh/discovery/{{ .Values.clusterName }}: "{{ .Values.clusterName }}"
