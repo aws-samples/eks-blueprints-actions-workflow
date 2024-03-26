@@ -66,7 +66,7 @@ You also need to provide a Terraform Cloud organization and workspace, and a [Gi
     ```
 
 1. Create the tfvars file in the `envs` folder with the values for your EKS cluster.
-    > Use [envs/dev/terraform.tfvars](dev/terraform.tfvars) as a reference
+    > Use [envs/dev/terraform.tfvars](envs/dev/terraform.tfvars) as a reference
     > Replace all values contained in the demo example with the required cluster configuration
 
 1. Run Terraform plan to verify the resources created by this execution
@@ -98,7 +98,7 @@ The following resources need to be available in the AWS accounts where you want 
 - Route 53 hosted zone
 - Wildcard certificate issued in ACM
 - [GitHub Actions IAM OIDC Identity Provider](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services)
-- GitHub Actions IAM Role with the [EKS Blueprints Minimum IAM policy](https://aws-ia.github.io/terraform-aws-eks-blueprints/latest/iam/minimum-iam-policy/)
+- GitHub Actions Terraform Execution IAM Role
 
 Follow the instructions for [Local Execution mode configuration](https://github.com/aws-samples/aws-terraform-reusable-workflow?tab=readme-ov-file#local-execution-mode-configuration). You will need to provide a Terraform Cloud organization with one workspace per environment and a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) (PAT) to access the application helm chart on this repository.
 
@@ -148,8 +148,8 @@ Ensure that you all the required Actions Secrets are present in the [Secrets - A
     kubectl port-forward service/argocd-server -n argocd 8080:443
     ```
 
-    Then, open your browser and navigate to `https://localhost:8080/`
-    Username should be `admin`.
+    Then, open your browser and navigate to [https://localhost:8080/](https://localhost:8080/)
+    The username is `admin`.
 
     You can retrieve the `admin` user password by running the following command:
 
