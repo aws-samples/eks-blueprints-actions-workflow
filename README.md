@@ -12,7 +12,7 @@ This example provides the following capabilities:
 
 - Deploy EKS clusters with GitHub Action Workflows
 - Execute test suites on ephemeral test clusters
-- Leverage [Karpenter](karpenter.sh) for Autoscaling
+- Leverage [Karpenter](https://karpenter.sh) for Autoscaling
 
 The following resources will be deployed by this example.
 
@@ -43,7 +43,6 @@ The following resources need to be available in the AWS accounts where you want 
 - VPC with private and public subnets
 - Route 53 hosted zone
 - Wildcard certificate issued in ACM
-- Terraform Cloud organization and workspace
 
 You also need to provide a Terraform Cloud organization and workspace, and a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) (PAT) to access the application helm chart on this repository.
 
@@ -117,7 +116,7 @@ Ensure that you all the required Actions Secrets are present in the [Secrets - A
 1. Create a branch.
 
 1. Create or update the tfvars file in the `envs` folder with the values for your EKS cluster.
-    > Use [envs/dev/terraform.tfvars](dev/terraform.tfvars) as a reference
+    > Use [envs/dev/terraform.tfvars](envs/dev/terraform.tfvars) as a reference
     > Replace all values contained in the demo example with the required cluster configuration
 
 1. Commit your changes and publish your branch.
