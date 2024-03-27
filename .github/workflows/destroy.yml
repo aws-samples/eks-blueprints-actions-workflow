@@ -1,0 +1,53 @@
+name: Destroy
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+  pull-requests: write # This is required to add comments to Pull Requests
+  deployments: write # This is required to deactivate deployments
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  destroy-dev:
+    name: Dev Destroy
+    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.2.0
+    with:
+      deploy: false
+      tf-version: ${{ vars.TF_VERSION }}
+      tf-organization: ${{ vars.TF_ORGANIZATION }}
+      tf-hostname: ${{ vars.TF_HOSTNAME }}
+      tf-workspace: ${{ vars.APP_NAME }}-dev
+      aws-region: "us-west-2"
+      environment: "dev"
+      ref: v1.2.0
+      local-execution-mode: true
+    secrets:
+      tf-token: ${{ secrets.TF_TOKEN }}
+      terraform-execution-iam-plan-role-arn: ${{ secrets.DEV_AWS_PLAN_ROLE_ARN }}
+      terraform-execution-iam-apply-role-arn: ${{ secrets.DEV_AWS_APPLY_ROLE_ARN }}
+      extra-args: ${{ secrets.DEV_EXTRA_ARGS }}
+  destroy-test:
+    needs: destroy-dev
+    name: Test Destroy
+    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.2.0
+    with:
+      deploy: false
+      tf-version: ${{ vars.TF_VERSION }}
+      tf-organization: ${{ vars.TF_ORGANIZATION }}
+      tf-hostname: ${{ vars.TF_HOSTNAME }}
+      tf-workspace: ${{ vars.APP_NAME }}-test
+      aws-region: "us-west-2"
+      environment: "test"
+      ref: v1.2.0
+      local-execution-mode: true
+    secrets:
+      tf-token: ${{ secrets.TF_TOKEN }}
+      terraform-execution-iam-plan-role-arn: ${{ secrets.TEST_AWS_PLAN_ROLE_ARN }}
+      terraform-execution-iam-apply-role-arn: ${{ secrets.TEST_AWS_APPLY_ROLE_ARN }}
+      extra-args: ${{ secrets.TEST_EXTRA_ARGS }}
