@@ -222,7 +222,7 @@ Ensure that you all the required Actions Secrets are present in the [Secrets - A
 
   1. Wait for 5 minutes to allow Karpenter to delete the empty nodes.
 
-  1. Run Terraform destroy.
+  1. Execute the Destroy GitHub Action Workflow to destroy all clusters in all environments or run Terraform destroy manually.
 
       ```shell
       # Personal Access Token (PAT) required to access the application helm chart repo
