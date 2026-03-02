@@ -26,7 +26,7 @@ concurrency:
 jobs:
   deploy-dev:
     name: Dev Deployment
-    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.2.0
+    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.3.0
     with:
       deploy: true
       tf-version: ${{ vars.TF_VERSION }}
@@ -45,7 +45,7 @@ jobs:
   deploy-test:
     needs: deploy-dev
     name: Test Deployment
-    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.2.0
+    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.3.0
     with:
       deploy: true
       tf-version: ${{ vars.TF_VERSION }}

@@ -16,7 +16,7 @@ concurrency:
 jobs:
   destroy-dev:
     name: Dev Destroy
-    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.2.0
+    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.3.0
     with:
       deploy: false
       tf-version: ${{ vars.TF_VERSION }}
@@ -35,7 +35,7 @@ jobs:
   destroy-test:
     needs: destroy-dev
     name: Test Destroy
-    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.2.0
+    uses: aws-samples/aws-terraform-reusable-workflow/.github/workflows/terraform-reusable.yml@v1.3.0
     with:
       deploy: false
       tf-version: ${{ vars.TF_VERSION }}
