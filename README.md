@@ -1,5 +1,8 @@
 # EKS Clusters using Karpenter on Fargate deployed with the Terraform EKS Blueprints and GitHub Actions Workflows
 
+> [!IMPORTANT]
+> This repository is archived and no longer maintained. The Terraform modules, Helm charts and GitHub Actions versions it pins are out of date, so don't use it as a starting point for new clusters. For maintained Amazon EKS patterns built with Terraform, see [EKS Blueprints for Terraform](https://github.com/aws-ia/terraform-aws-eks-blueprints).
+
 [![checkov](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/checkov.yml/badge.svg)](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/checkov.yml)
 [![tflint](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/tflint.yml/badge.svg)](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/tflint.yml)
 [![terraform-docs](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/terraform-docs.yml/badge.svg)](https://github.com/aws-samples/eks-blueprints-actions-workflow/actions/workflows/terraform-docs.yml)
